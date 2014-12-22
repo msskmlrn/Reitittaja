@@ -1,16 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Reitittäjä</string>
+    <string name="title_section1">Journey planner</string>
+    <string name="title_section2">Stops</string>
+    <string name="title_section3">Lines</string>
+    <string name="title_section4">Map</string>
 
-    <string name="app_name">Reitittaja</string>
-    <string name="title_section1">Section 1</string>
-    <string name="title_section2">Section 2</string>
-    <string name="title_section3">Section 3</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
     <string name="action_example">Example action</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_journey_planner">JourneyPlannerActivity</string>
-    <string name="hello_world">Hello world!</string>
+
+    <string name="journey_planner_from">From</string>
+    <string name="journey_planner_to">To</string>
+    <string name="journey_planner_when">When</string>
+    <string name="journey_planner_date">Date</string>
+    <string name="journey_planner_start_time">Departure</string>
+    <string name="journey_planner_arrival_time">Arrival</string>
+    <string name="journey_planner_how">How</string>
+    <string name="journey_planner_all">All</string>
+    <string name="journey_planner_bus">Bus</string>
+    <string name="journey_planner_train">Train</string>
+    <string name="journey_planner_metro">Metro</string>
+    <string name="journey_planner_tram">Tram</string>
+    <string name="journey_planner_uline_bus">Uline bus</string>
+    <string name="journey_planner_service_bus">Service bus</string>
+    <string name="journey_planner_only_walking">Only walking</string>
+    <string name="journey_planner_only_cycling">Only cycling</string>
+    <string name="journey_planner_search">Search</string>
+    <string name="journey_planner_now_time">Now</string>
+    <string name="journey_planner_now_date">Today</string>
+    <string name="journey_planner_current_location">Current location</string>
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="pick_time">Time</string>
+    <string name="pick_date">Date</string>
+    <string name="reset_time_and_date">Reset</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>
