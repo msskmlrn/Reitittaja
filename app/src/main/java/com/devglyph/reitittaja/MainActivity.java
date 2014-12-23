@@ -123,7 +123,7 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     @Override
-    public void onFragmentInteraction(Uri uri) {
+    public void onFragmentInteraction(String string) {
 
     }
 
