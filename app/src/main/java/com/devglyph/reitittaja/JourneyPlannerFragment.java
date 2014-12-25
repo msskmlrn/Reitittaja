@@ -21,9 +21,19 @@ import android.widget.DatePicker;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.message.BasicNameValuePair;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -69,10 +79,12 @@ public class JourneyPlannerFragment extends Fragment {
     private int mMinutes = -1;
     private int mMonth = -1;
     private int mDay = -1;
+    private int mYear = -1;
 
     private Location startLocation;
     private Location endLocation;
 
+    private View mView;
 
     /**
      * Use this factory method to create a new instance of
@@ -106,54 +118,54 @@ public class JourneyPlannerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_journey_planner, container, false);
+        mView = inflater.inflate(R.layout.fragment_journey_planner, container, false);
 
-        RadioGroup group = (RadioGroup) view.findViewById(R.id.radioGroupArrivalDeparture);
+        RadioGroup group = (RadioGroup) mView.findViewById(R.id.radioGroupArrivalDeparture);
         createRadioButtonChangeListener(group);
 
-        CheckBox box = (CheckBox) view.findViewById(R.id.checkBoxBus);
+        CheckBox box = (CheckBox) mView.findViewById(R.id.checkBoxBus);
         createCheckBoxChangeListener(box);
         box.setChecked(true);
-        box = (CheckBox) view.findViewById(R.id.checkBoxTrain);
+        box = (CheckBox) mView.findViewById(R.id.checkBoxTrain);
         createCheckBoxChangeListener(box);
         box.setChecked(true);
-        box = (CheckBox) view.findViewById(R.id.checkBoxMetro);
+        box = (CheckBox) mView.findViewById(R.id.checkBoxMetro);
         createCheckBoxChangeListener(box);
         box.setChecked(true);
-        box = (CheckBox) view.findViewById(R.id.checkBoxTram);
+        box = (CheckBox) mView.findViewById(R.id.checkBoxTram);
         createCheckBoxChangeListener(box);
         box.setChecked(true);
-        box = (CheckBox) view.findViewById(R.id.checkBoxUline);
+        box = (CheckBox) mView.findViewById(R.id.checkBoxUline);
         createCheckBoxChangeListener(box);
         box.setChecked(true);
-        box = (CheckBox) view.findViewById(R.id.checkBoxService);
+        box = (CheckBox) mView.findViewById(R.id.checkBoxService);
         createCheckBoxChangeListener(box);
         box.setChecked(true);
-        box = (CheckBox) view.findViewById(R.id.checkBoxOnlyWalking);
+        box = (CheckBox) mView.findViewById(R.id.checkBoxOnlyWalking);
         createCheckBoxChangeListener(box);
-        box = (CheckBox) view.findViewById(R.id.checkBoxOnlyCycling);
+        box = (CheckBox) mView.findViewById(R.id.checkBoxOnlyCycling);
         createCheckBoxChangeListener(box);
 
-        Button searchButton = (Button) view.findViewById(R.id.button_search);
+        Button searchButton = (Button) mView.findViewById(R.id.button_search);
         createSearchButtonClickListener(searchButton);
 
-        mTimeButton = (Button) view.findViewById(R.id.whenTimeButton);
+        mTimeButton = (Button) mView.findViewById(R.id.whenTimeButton);
         createTimeButtonClickListener(mTimeButton);
         mTimeButton.setText(R.string.journey_planner_now_time);
 
-        mDateButton = (Button) view.findViewById(R.id.whenDateButton);
+        mDateButton = (Button) mView.findViewById(R.id.whenDateButton);
         createDateButtonClickListener(mDateButton);
         mDateButton.setText(R.string.journey_planner_now_date);
 
-        mStartPlace = (AutoCompleteTextView) view.findViewById(R.id.start_place);
+        mStartPlace = (AutoCompleteTextView) mView.findViewById(R.id.start_place);
         mStartPlace.setAdapter(new PlacesAutoCompleteAdapter(this, getActivity(), R.layout.list_item));
         createOnItemClickListener(mStartPlace);
 
-        mEndPlace = (AutoCompleteTextView) view.findViewById(R.id.end_place);
+        mEndPlace = (AutoCompleteTextView) mView.findViewById(R.id.end_place);
         mEndPlace.setAdapter(new PlacesAutoCompleteAdapter(this, getActivity(), R.layout.list_item));
         createOnItemClickListener(mEndPlace);
 
-        return view;
+        return mView;
     }
 
     private void createOnItemClickListener(final AutoCompleteTextView autoCompleteTextView) {
@@ -298,10 +310,195 @@ public class JourneyPlannerFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (v.getId() == R.id.button_search) {
+                    //validate that the start and end location have been chosen
+                    if (startLocation == null) {
+                        String message = "Choose a start location";
+                        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    else if (endLocation == null) {
+                        String message = "Choose an end location";
+                        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    prepareSearchQuery();
+
                     Log.d(LOG_TAG, "search");
+
                 }
             }
         });
+    }
+
+    private void prepareSearchQuery() {
+
+        final String QUERY_BASE_URL =
+                "http://api.reittiopas.fi/hsl/prod/?";
+        final String QUERY_PARAM = "request";
+        final String FORMAT_PARAM = "format";
+        final String USERNAME_PARAM = "user";
+        final String PASSWORD_PARAM = "pass";
+        final String COORDINATE_OUTPUT_PARAM = "epsg_out";
+        final String COORDINATE_INPUT_PARAM = "epsg_in";
+        final String FROM_PARAM = "from";
+        final String TO_PARAM = "to";
+        final String DATE_PARAM = "date";
+        final String TIME_PARAM = "time";
+        final String TIMETYPE_PARAM = "timetype";
+        final String TRANSPORT_TYPES_PARAM = "transport_types";
+        final String OPTIMIZE_PARAM = "optimize";
+        final String CHANGE_MARGIN_PARAM = "change_margin";
+        final String WALK_SPEED_PARAM = "walk_speed";
+        final String SHOW_PARAM = "show";
+
+        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+        nameValuePairs.add(new BasicNameValuePair(QUERY_PARAM, "route"));
+        nameValuePairs.add(new BasicNameValuePair(FORMAT_PARAM, "json"));
+        nameValuePairs.add(new BasicNameValuePair(USERNAME_PARAM, getString(R.string.reittiopas_username)));
+        nameValuePairs.add(new BasicNameValuePair(PASSWORD_PARAM, getString(R.string.reittiopas_password)));
+        nameValuePairs.add(new BasicNameValuePair(COORDINATE_OUTPUT_PARAM, "wgs84"));
+        nameValuePairs.add(new BasicNameValuePair(COORDINATE_INPUT_PARAM, "wgs84"));
+
+        String startCoords = startLocation.getCoords().getLongitude() + "," + startLocation.getCoords().getLatitude();
+        String endCoords = endLocation.getCoords().getLongitude() + "," + endLocation.getCoords().getLatitude();
+        nameValuePairs.add(new BasicNameValuePair(FROM_PARAM, startCoords));
+        nameValuePairs.add(new BasicNameValuePair(TO_PARAM, endCoords));
+
+        String modes = getTransportTypes();
+
+        nameValuePairs.add(new BasicNameValuePair(TRANSPORT_TYPES_PARAM, modes));
+        if (modes.equals("cycle")) {
+            //TODO cycle route search
+            String message = "Cycle route search not supported yet";
+            Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        nameValuePairs.add(new BasicNameValuePair(DATE_PARAM, getDateParameter()));
+        nameValuePairs.add(new BasicNameValuePair(TIME_PARAM, getTimeParameter()));
+        nameValuePairs.add(new BasicNameValuePair(TIMETYPE_PARAM, getTimeType()));
+        nameValuePairs.add(new BasicNameValuePair(SHOW_PARAM, "5"));
+
+        //TODO implement walk speed, change margin and optimize choices
+
+        String paramString = URLEncodedUtils.format(nameValuePairs, "utf-8");
+
+        try {
+            URL url = new URL(QUERY_BASE_URL + paramString);
+            Log.d(LOG_TAG, "launching async task "+url);
+
+            RouteSearchTask task = new RouteSearchTask(this);
+            task.execute(url);
+        }
+        catch (MalformedURLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private String getTimeType() {
+        String timeType;
+
+        if (mDeparture) {
+            timeType = "departure";
+        }
+        else {
+            timeType = "arrival";
+        }
+
+        return timeType;
+    }
+
+    private String getDateParameter() {
+        String date;
+        Calendar cal = Calendar.getInstance();
+        Date dDate;
+
+        //if the date parameter has not been changed from "today", then use the current date
+        if (mDay == -1 || mMonth == -1 || mYear == -1) {
+            dDate = cal.getTime();
+        }
+        else { //parse the chosen date
+            cal.set(Calendar.YEAR, mYear);
+            cal.set(Calendar.MONTH, mMonth);
+            cal.set(Calendar.DATE, mDay);
+            dDate = cal.getTime();
+        }
+
+        //format the date to yyyymmdd
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+        date = simpleDateFormat.format(dDate);
+
+        return date;
+    }
+
+    private String getTimeParameter() {
+        String time;
+        Calendar cal;
+        SimpleDateFormat simpleDateFormat;
+
+        //if the date parameter has not been changed from "now", then use the current time
+        if (mMinutes == -1 || mHours == -1) {
+            cal = Calendar.getInstance();
+        }
+        else { //parse the chosen time
+            cal = Calendar.getInstance();
+            cal.set(Calendar.HOUR, mHours);
+            cal.set(Calendar.MINUTE, mMinutes);
+        }
+
+        //format the time to hhmm
+        Date dTime = cal.getTime();
+        simpleDateFormat = new SimpleDateFormat("HHmm");
+        time = simpleDateFormat.format(dTime);
+
+        return time;
+    }
+
+    private String getTransportTypes() {
+        String modes = "";
+
+        CheckBox box = (CheckBox) mView.findViewById(R.id.checkBoxBus);
+        if (box.isChecked()) {
+            modes = modes + "bus";
+        }
+
+        box = (CheckBox) mView.findViewById(R.id.checkBoxTrain);
+        if (box.isChecked()) {
+            modes = modes + "|" + "train";
+        }
+
+        box = (CheckBox) mView.findViewById(R.id.checkBoxMetro);
+        if (box.isChecked()) {
+            modes = modes + "|" + "metro";
+        }
+
+        box = (CheckBox) mView.findViewById(R.id.checkBoxTram);
+        if (box.isChecked()) {
+            modes = modes + "|" + "tram";
+        }
+
+        box = (CheckBox) mView.findViewById(R.id.checkBoxUline);
+        if (box.isChecked()) {
+            modes = modes + "|" + "uline";
+        }
+
+        box = (CheckBox) mView.findViewById(R.id.checkBoxService);
+        if (box.isChecked()) {
+            modes = modes + "|" + "service";
+        }
+
+        box = (CheckBox) mView.findViewById(R.id.checkBoxOnlyWalking);
+        if (box.isChecked()) {
+            return "walk";
+        }
+
+        box = (CheckBox) mView.findViewById(R.id.checkBoxOnlyCycling);
+        if (box.isChecked()) {
+            return "cycle";
+        }
+
+        return modes;
     }
 
     private void createTimeButtonClickListener(Button button) {
@@ -397,6 +594,7 @@ public class JourneyPlannerFragment extends Fragment {
         mDateButton.setText(date);
         mDay = dDay;
         mMonth = dMonth;
+        mYear = dYear;
     }
 
     private void resetTimeAndDate() {
@@ -407,6 +605,7 @@ public class JourneyPlannerFragment extends Fragment {
         mMinutes = -1;
         mDay = -1;
         mMonth = -1;
+        mYear = -1;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -455,5 +654,4 @@ public class JourneyPlannerFragment extends Fragment {
     public void setLocationList(ArrayList<Location> locationList) {
         this.locationList = locationList;
     }
-
 }
