@@ -54,13 +54,14 @@ class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements Filterab
                 if (constraint != null) {
                     // Retrieve the autocomplete results.
                     Log.d(LOG_TAG, "Charconstraintsequence " + constraint);
+                    ArrayList<String> tempList = autocomplete(constraint.toString());
+                    if (tempList != null && !tempList.isEmpty()) {
+                        resultList = tempList;
 
-                    resultList = autocomplete(constraint.toString());
-
-                    // Assign the data to the FilterResults
-                    filterResults.values = resultList;
-                    filterResults.count = resultList.size();
-
+                        // Assign the data to the FilterResults
+                        filterResults.values = resultList;
+                        filterResults.count = resultList.size();
+                    }
                 }
                 return filterResults;
             }
