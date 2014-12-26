@@ -14,7 +14,7 @@ public class RouteLeg {
     private String type;
     private String lineCode;
     private ArrayList<RouteLocation> locations;
-    private ArrayList<Location> shape;
+    private ArrayList<Coordinates> shape;
 
     public RouteLeg() {
 
@@ -22,7 +22,7 @@ public class RouteLeg {
 
     public RouteLeg(double length, double duration, String type,
                     String lineCode, ArrayList<RouteLocation> locations,
-                    ArrayList<Location> shape) {
+                    ArrayList<Coordinates> shape) {
 
         this.length = length;
         this.duration = duration;
@@ -116,7 +116,7 @@ public class RouteLeg {
      * Getter for route leg shape
      * @return list of Location objects
      */
-    public ArrayList<Location> getShape() {
+    public ArrayList<Coordinates> getShape() {
         return shape;
     }
 
@@ -124,7 +124,7 @@ public class RouteLeg {
      * Setter for route leg shape
      * @param shape
      */
-    public void setShape(ArrayList<Location> shape) {
+    public void setShape(ArrayList<Coordinates> shape) {
         this.shape = shape;
     }
 }

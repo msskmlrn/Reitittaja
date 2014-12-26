@@ -1,8 +1,5 @@
 package com.devglyph.reitittaja;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -17,36 +14,15 @@ public class RouteLocation {
     private double code;
     private String shortCode;
     private String address;
-    private Location coordinates;
+    private Coordinates coordinates;
 
     public RouteLocation() {
 
     }
 
-    public RouteLocation(Location coordinates, String arrivalTime, String departureTime,
-                               String name, double code, String shortcode, String address) {
-
-        String DATE_FORMAT = "yyyyMMddHHmm";
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-
-        try {
-            this.setArrivalTime(sdf.parse(arrivalTime));
-        }
-        catch (ParseException e) {
-            this.setArrivalTime(Calendar.getInstance().getTime());
-        }
-
-        try {
-            this.setDepartureTime(sdf.parse(departureTime));
-        }
-        catch (ParseException e) {
-            this.setDepartureTime(Calendar.getInstance().getTime());
-        }
-
-        this.name = name;
-        this.code = code;
-        this.shortCode = shortcode;
-        this.address = address;
+    public RouteLocation(Date arrivalTime, Date departureTime, Coordinates coordinates) {
+        this.arrivalTime = arrivalTime;
+        this.departureTime = departureTime;
         this.coordinates = coordinates;
     }
 
@@ -150,7 +126,7 @@ public class RouteLocation {
      * Getter for coordinates
      * @return coordinates
      */
-    public Location getCoordinates() {
+    public Coordinates getCoordinates() {
         return coordinates;
     }
 
@@ -158,7 +134,7 @@ public class RouteLocation {
      * Setter for coordinates
      * @param coordinates
      */
-    public void setCoordinates(Location coordinates) {
+    public void setCoordinates(Coordinates coordinates) {
         this.coordinates = coordinates;
     }
 }
