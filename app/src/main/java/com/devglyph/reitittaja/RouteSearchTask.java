@@ -4,14 +4,22 @@ import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 
-public class RouteSearchTask extends AsyncTask<URL, Void, String[]> {
+public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
 
     private final String LOG_TAG = RouteSearchTask.class.getSimpleName();
 
@@ -30,7 +38,7 @@ public class RouteSearchTask extends AsyncTask<URL, Void, String[]> {
     }
 
     @Override
-    protected String[] doInBackground(URL... params) {
+    protected ArrayList<Route> doInBackground(URL... params) {
 
         if (params.length == 0) {
             return null;
@@ -95,12 +103,14 @@ public class RouteSearchTask extends AsyncTask<URL, Void, String[]> {
     }
 
     @Override
-    protected void onPostExecute(String[] strings) {
-        super.onPostExecute(strings);
+    protected void onPostExecute(ArrayList<Route> routes) {
+        super.onPostExecute(routes);
 
         if (pDialog != null && pDialog.isShowing()) {
             pDialog.dismiss();
         }
+
+        Log.d(LOG_TAG, "onPostExecute");
 
         /*
         if (param) {
@@ -116,11 +126,204 @@ public class RouteSearchTask extends AsyncTask<URL, Void, String[]> {
         */
     }
 
-    private String[] getRoutesFromJson(String json) {
-        String[] routes = new String[5];
+    private ArrayList<Route> getRoutesFromJson(String json) {
+        ArrayList<Route> routes = new ArrayList<>();
 
         Log.d(LOG_TAG, "getRoutesFromJson "+json);
 
+        final String TAG_ROUTE_LENGTH = "length";
+        final String TAG_ROUTE_DURATION = "duration";
+        final String TAG_ROUTE_LEGS = "legs";
+
+        try {
+            JSONArray routesJson = new JSONArray(json);
+
+            JSONArray routeArray;
+            JSONObject routeObject;
+
+            double length;
+            double duration;
+            JSONArray routeLegs;
+
+            Route route;
+            ArrayList<RouteLeg> legs;
+            for (int i = 0; i < routesJson.length(); i++) {
+                routeArray = routesJson.getJSONArray(i);
+                routeObject = routeArray.getJSONObject(0);
+
+                length = routeObject.getDouble(TAG_ROUTE_LENGTH);
+                duration = routeObject.getDouble(TAG_ROUTE_DURATION);
+                routeLegs = routeObject.getJSONArray(TAG_ROUTE_LEGS);
+
+                legs = new ArrayList<>();
+                for (int j = 0; j < routeLegs.length(); j++) {
+                    legs.add(getRouteLeg(routeLegs.getJSONObject(j)));
+                }
+
+                route = new Route(length, duration, legs);
+                routes.add(route);
+            }
+        }
+        catch (JSONException e) {
+            Log.e(LOG_TAG, "Cannot process JSON results", e);
+        }
+
         return routes;
+    }
+
+    private RouteLeg getRouteLeg(JSONObject legObject) {
+        final String TAG_LEG_LENGTH = "length";
+        final String TAG_LEG_DURATION = "duration";
+        final String TAG_LEG_TYPE = "type";
+        final String TAG_LEG_LINE_CODE = "code";
+        final String TAG_LEG_LOCATIONS = "locs";
+        final String TAG_LEG_SHAPE = "shape";
+
+        RouteLeg leg = null;
+
+        try {
+            double length = legObject.getDouble(TAG_LEG_LENGTH);
+            double duration = legObject.getDouble(TAG_LEG_DURATION);
+            String type = legObject.getString(TAG_LEG_TYPE);
+
+            String lineCode = null;
+            if (legObject.has(TAG_LEG_LINE_CODE)) {
+                lineCode = legObject.getString(TAG_LEG_LINE_CODE);
+            }
+
+            JSONArray locations = legObject.getJSONArray(TAG_LEG_LOCATIONS);
+            JSONArray shape = legObject.getJSONArray(TAG_LEG_SHAPE);
+
+            ArrayList<RouteLocation> locationsList = getLegLocations(locations);
+            ArrayList<Coordinates> shapeList = getLegShape(shape);
+
+            leg = new RouteLeg(length, duration, type, lineCode, locationsList, shapeList);
+        }
+        catch (JSONException e) {
+            Log.e(LOG_TAG, "Cannot process JSON results", e);
+        }
+
+        return leg;
+    }
+
+    private ArrayList<RouteLocation> getLegLocations(JSONArray locationsArray) {
+        final String TAG_LOCATION_ARRIVAL_TIME = "arrTime";
+        final String TAG_LOCATION_DEPARTURE_TIME = "depTime";
+        final String TAG_LOCATION_COORDINATES = "coord";
+
+        final String TAG_LOCATION_NAME = "name";
+        final String TAG_LOCATION_CODE = "code";
+        final String TAG_LOCATION_SHORT_CODE = "shortCode";
+        final String TAG_LOCATION_ADDRESS = "stopAddress";
+        final String TAG_LOCATION_X_COORDINATE = "x";
+        final String TAG_LOCATION_Y_COORDINATE = "y";
+
+        ArrayList<RouteLocation> locations = new ArrayList<>();
+
+        try {
+
+            JSONObject location;
+            String arrivalTime;
+            String departureTime;
+            String name;
+            String code;
+            String shortCode;
+            String stopAddress;
+            JSONObject coordinatesObject;
+            Coordinates coordinates;
+
+            RouteLocation routeLocation;
+
+            for (int i = 0; i < locationsArray.length(); i++) {
+                location = locationsArray.getJSONObject(i);
+
+                //all locations have the three following parameters
+                arrivalTime = location.getString(TAG_LOCATION_ARRIVAL_TIME);
+                departureTime = location.getString(TAG_LOCATION_DEPARTURE_TIME);
+                coordinatesObject = location.getJSONObject(TAG_LOCATION_COORDINATES);
+
+                coordinates = new Coordinates(coordinatesObject.getDouble(TAG_LOCATION_Y_COORDINATE),
+                        coordinatesObject.getDouble(TAG_LOCATION_X_COORDINATE));
+
+
+                routeLocation = new RouteLocation(parseDateFromYYYYMMDDHHMM(arrivalTime),
+                        parseDateFromYYYYMMDDHHMM(departureTime), coordinates);
+
+                //check if the following parameters are present
+                if (location.has(TAG_LOCATION_NAME)) {
+                    name = location.getString(TAG_LOCATION_NAME);
+                    routeLocation.setName(name);
+                }
+                else if (location.has(TAG_LOCATION_CODE)) {
+                    code = location.getString(TAG_LOCATION_CODE);
+                    routeLocation.setCode(tryParsingStringToInt(code));
+                }
+                else if (location.has(TAG_LOCATION_SHORT_CODE)) {
+                    shortCode = location.getString(TAG_LOCATION_SHORT_CODE);
+                    routeLocation.setShortCode(shortCode);
+                }
+                else if (location.has(TAG_LOCATION_ADDRESS)) {
+                    stopAddress = location.getString(TAG_LOCATION_ADDRESS);
+                    routeLocation.setAddress(stopAddress);
+                }
+
+                locations.add(routeLocation);
+            }
+
+        }
+        catch (JSONException e) {
+            Log.e(LOG_TAG, "Cannot process JSON results", e);
+        }
+
+        return locations;
+    }
+
+    private Date parseDateFromYYYYMMDDHHMM(String time) {
+        String DATE_FORMAT = "yyyyMMddHHmm";
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
+
+        try {
+            return sdf.parse(time);
+        }
+        catch (ParseException e) {
+            Log.e(LOG_TAG, "Cannot parse time", e);
+            return null;
+        }
+    }
+
+    private int tryParsingStringToInt(String string) {
+        try {
+            return Integer.parseInt(string);
+        }
+        catch (NumberFormatException e) {
+            Log.e(LOG_TAG, "Cannot parse int", e);
+            return -1;
+        }
+    }
+
+
+    private ArrayList<Coordinates> getLegShape(JSONArray shapeArray) {
+        ArrayList<Coordinates> shape = new ArrayList<>();
+
+        final String TAG_LOCATION_X_COORDINATE = "x";
+        final String TAG_LOCATION_Y_COORDINATE = "y";
+
+        try {
+            JSONObject locationObject;
+            Coordinates coordinates;
+            for (int i = 0; i < shapeArray.length(); i++) {
+                locationObject = shapeArray.getJSONObject(i);
+                coordinates = new Coordinates(locationObject.getDouble(TAG_LOCATION_Y_COORDINATE),
+                        locationObject.getDouble(TAG_LOCATION_X_COORDINATE));
+
+                shape.add(coordinates);
+
+            }
+        }
+        catch (JSONException e) {
+            Log.e(LOG_TAG, "Cannot process JSON results", e);
+        }
+
+        return shape;
     }
 }
