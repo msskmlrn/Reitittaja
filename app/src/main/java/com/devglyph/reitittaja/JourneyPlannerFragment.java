@@ -351,6 +351,7 @@ public class JourneyPlannerFragment extends Fragment {
         final String CHANGE_MARGIN_PARAM = "change_margin";
         final String WALK_SPEED_PARAM = "walk_speed";
         final String SHOW_PARAM = "show";
+        final String DETAIL_PARAM = "detail";
 
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
         nameValuePairs.add(new BasicNameValuePair(QUERY_PARAM, "route"));
@@ -379,6 +380,7 @@ public class JourneyPlannerFragment extends Fragment {
         nameValuePairs.add(new BasicNameValuePair(TIME_PARAM, getTimeParameter()));
         nameValuePairs.add(new BasicNameValuePair(TIMETYPE_PARAM, getTimeType()));
         nameValuePairs.add(new BasicNameValuePair(SHOW_PARAM, "5"));
+        nameValuePairs.add(new BasicNameValuePair(DETAIL_PARAM, "full"));
 
         //TODO implement walk speed, change margin and optimize choices
 
