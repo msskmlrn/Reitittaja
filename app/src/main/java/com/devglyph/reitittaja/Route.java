@@ -1,5 +1,8 @@
 package com.devglyph.reitittaja;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 
 /**
@@ -7,7 +10,7 @@ import java.util.ArrayList;
  * HSL route api call JSON response objects.
  * See http://developer.reittiopas.fi/pages/fi/http-get-interface-version-2.php?lang=EN#route
  */
-public class Route {
+public class Route implements Parcelable{
 
     private double length;
     private double duration;
@@ -74,5 +77,34 @@ public class Route {
      */
     public void setLegs(ArrayList<RouteLeg> legs) {
         this.legs = legs;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeDouble(length);
+        dest.writeDouble(duration);
+        dest.writeTypedList(legs);
+    }
+
+    public static final Parcelable.Creator<Route> CREATOR = new Parcelable.Creator<Route>() {
+        public Route createFromParcel(Parcel in) {
+            return new Route(in);
+        }
+
+        public Route[] newArray(int size) {
+            return new Route[size];
+        }
+    };
+
+    private Route(Parcel in) {
+        length = in.readDouble();
+        duration = in.readDouble();
+        legs = new ArrayList<RouteLeg>();
+        in.readTypedList(legs, RouteLeg.CREATOR);
     }
 }

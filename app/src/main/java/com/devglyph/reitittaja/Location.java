@@ -1,10 +1,13 @@
 package com.devglyph.reitittaja;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Base class for geocodedLocation objects. These objects represent the information returned by the
  * HSL api call JSON response objects. See http://developer.reittiopas.fi/pages/fi/http-get-interface-version-2.php?lang=EN#geocode
  */
-public class Location {
+public class Location implements Parcelable {
     private String locType; //Type of the location: street, address, poi (point of interest) or stop
     private int locTypeId; //Location type id of the location (1-9 and 1008 = poi, 10 = stop, 900 = address)
     private String name; //Name of the location.
@@ -167,5 +170,43 @@ public class Location {
         }
 
         return result;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(locType);
+        dest.writeInt(locTypeId);
+        dest.writeString(name);
+        dest.writeString(matchedName);
+        dest.writeString(lang);
+        dest.writeString(city);
+        dest.writeParcelable(coords, flags);
+        dest.writeParcelable(details, flags);
+    }
+
+    public static final Parcelable.Creator<Location> CREATOR = new Parcelable.Creator<Location>() {
+        public Location createFromParcel(Parcel in) {
+            return new Location(in);
+        }
+
+        public Location[] newArray(int size) {
+            return new Location[size];
+        }
+    };
+
+    private Location(Parcel in) {
+        locType = in.readString();
+        locTypeId = in.readInt();
+        name = in.readString();
+        matchedName = in.readString();
+        lang = in.readString();
+        city = in.readString();
+        coords = in.readParcelable(Coordinates.class.getClassLoader());
+        details = in.readParcelable(LocationDetails.class.getClassLoader());
     }
 }

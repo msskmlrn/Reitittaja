@@ -1,5 +1,8 @@
 package com.devglyph.reitittaja;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 
 /**
@@ -7,7 +10,7 @@ import java.util.ArrayList;
  * HSL route api call JSON response objects.
  * See http://developer.reittiopas.fi/pages/fi/http-get-interface-version-2.php?lang=EN#route
  */
-public class RouteLeg {
+public class RouteLeg implements Parcelable {
 
     private double length;
     private double duration;
@@ -126,5 +129,41 @@ public class RouteLeg {
      */
     public void setShape(ArrayList<Coordinates> shape) {
         this.shape = shape;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeDouble(length);
+        dest.writeDouble(duration);
+        dest.writeString(type);
+        dest.writeString(lineCode);
+        dest.writeTypedList(locations);
+        dest.writeTypedList(shape);
+    }
+
+    public static final Parcelable.Creator<RouteLeg> CREATOR = new Parcelable.Creator<RouteLeg>() {
+        public RouteLeg createFromParcel(Parcel in) {
+            return new RouteLeg(in);
+        }
+
+        public RouteLeg[] newArray(int size) {
+            return new RouteLeg[size];
+        }
+    };
+
+    private RouteLeg(Parcel in) {
+        length = in.readDouble();
+        duration = in.readDouble();
+        type = in.readString();
+        lineCode = in.readString();
+        locations = new ArrayList<RouteLocation>();
+        in.readTypedList(locations, RouteLocation.CREATOR);
+        shape = new ArrayList<Coordinates>();
+        in.readTypedList(shape, Coordinates.CREATOR);
     }
 }

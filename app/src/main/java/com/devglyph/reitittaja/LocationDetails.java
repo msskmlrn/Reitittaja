@@ -1,8 +1,11 @@
 package com.devglyph.reitittaja;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 
-public class LocationDetails {
+public class LocationDetails implements Parcelable {
 
     //Detailed information about the location such as houseNumber for addresses, poiClass for POIs and codes for stops.
     private String address;
@@ -145,5 +148,43 @@ public class LocationDetails {
      */
     public void setPoiType(String poiType) {
         this.poiType = poiType;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(address);
+        dest.writeString(code);
+        dest.writeString(shortCode);
+        dest.writeDouble(changeCost);
+        dest.writeStringList(lines);
+        dest.writeInt(transportTypeId);
+        dest.writeInt(houseNumber);
+        dest.writeString(poiType);
+    }
+
+    public static final Parcelable.Creator<LocationDetails> CREATOR = new Parcelable.Creator<LocationDetails>() {
+        public LocationDetails createFromParcel(Parcel in) {
+            return new LocationDetails(in);
+        }
+
+        public LocationDetails[] newArray(int size) {
+            return new LocationDetails[size];
+        }
+    };
+
+    private LocationDetails(Parcel in) {
+        address = in.readString();
+        code = in.readString();
+        shortCode = in.readString();
+        changeCost = in.readDouble();
+        lines = in.createStringArrayList();
+        transportTypeId = in.readInt();
+        houseNumber = in.readInt();
+        poiType = in.readString();
     }
 }

@@ -1,12 +1,15 @@
 package com.devglyph.reitittaja;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.Date;
 
 /**
  * Base class for CustomRouteLocation objects. These objects represent the information returned by the
  * HSL api call JSON response objects. See http://developer.reittiopas.fi/pages/fi/http-get-interface-version-2.php?lang=EN#route
  */
-public class RouteLocation {
+public class RouteLocation implements Parcelable {
 
     private Date arrivalTime;
     private Date departureTime;
@@ -137,4 +140,42 @@ public class RouteLocation {
     public void setCoordinates(Coordinates coordinates) {
         this.coordinates = coordinates;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(arrivalTime.getTime());
+        dest.writeLong(departureTime.getTime());
+        dest.writeString(name);
+        dest.writeDouble(code);
+        dest.writeString(shortCode);
+        dest.writeString(address);
+        dest.writeParcelable(coordinates, flags);
+    }
+
+    public static final Parcelable.Creator<RouteLocation> CREATOR = new Parcelable.Creator<RouteLocation>() {
+        public RouteLocation createFromParcel(Parcel in) {
+            return new RouteLocation(in);
+        }
+
+        public RouteLocation[] newArray(int size) {
+            return new RouteLocation[size];
+        }
+    };
+
+    private RouteLocation(Parcel in) {
+        arrivalTime = new Date(in.readLong());
+        departureTime = new Date(in.readLong());
+        name = in.readString();
+        code = in.readDouble();
+        shortCode = in.readString();
+        address = in.readString();
+        coordinates = in.readParcelable(Coordinates.class.getClassLoader());
+    }
+
+
 }
