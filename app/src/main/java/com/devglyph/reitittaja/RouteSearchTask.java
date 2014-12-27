@@ -1,8 +1,10 @@
 package com.devglyph.reitittaja;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,8 +25,10 @@ public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
 
     private final String LOG_TAG = RouteSearchTask.class.getSimpleName();
 
+    public  final static String SER_KEY = "com.devglyph.routes";
+
     private JourneyPlannerFragment journeyPlannerFragment;
-    ProgressDialog pDialog;
+    private ProgressDialog pDialog;
 
     public RouteSearchTask(JourneyPlannerFragment journeyPlannerFragment) {
         this.journeyPlannerFragment = journeyPlannerFragment;
@@ -110,20 +114,18 @@ public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
             pDialog.dismiss();
         }
 
-        Log.d(LOG_TAG, "onPostExecute");
+        if (routes != null && !routes.isEmpty()) {
+            Intent intent = new Intent(journeyPlannerFragment.getActivity(), RouteListActivity.class);
+            intent.putParcelableArrayListExtra(SER_KEY, routes);
 
-        /*
-        if (param) {
-            Intent currentTrip = new Intent(JourneyPlannerActivity.this, MapActivity.class);
-            currentTrip.putExtra("routeSearch", true);
-            JourneyPlannerActivity.this.startActivity(currentTrip);
+            journeyPlannerFragment.startActivity(intent);
         }
         else {
-            Intent sugTrips = new Intent(JourneyPlannerActivity.this,
-                    JourneyPlannerTripsActivity.class);
-            JourneyPlannerActivity.this.startActivityForResult(sugTrips, 0);
+            String message = "Please try again.";
+            Toast.makeText(journeyPlannerFragment.getActivity(), message, Toast.LENGTH_SHORT).show();
         }
-        */
+
+        Log.d(LOG_TAG, "onPostExecute");
     }
 
     private ArrayList<Route> getRoutesFromJson(String json) {
