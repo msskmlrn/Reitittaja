@@ -3,7 +3,7 @@
     android:layout_height="match_parent" android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp" android:baselineAligned="false"
     android:divider="?android:attr/dividerHorizontal" android:orientation="horizontal"
-    android:showDividers="middle" tools:context="com.devglyph.reitittaja.RouteListActivity">
+    android:showDividers="middle" tools:context="com.devglyph.reitittaja.activities.RouteListActivity">
 
     <!--
     This layout is a two-pane layout for the Routes
@@ -17,7 +17,7 @@
     http://developer.android.com/training/multiscreen/screensizes.html#TaskUseAliasFilters
     -->
 
-    <fragment android:id="@+id/route_list" android:name="com.devglyph.reitittaja.RouteListFragment"
+    <fragment android:id="@+id/route_list" android:name="com.devglyph.reitittaja.fragments.RouteListFragment"
         android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"
         tools:layout="@android:layout/list_content" />
 
