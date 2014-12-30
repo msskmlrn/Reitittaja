@@ -60,7 +60,10 @@ public class RouteListActivity extends FragmentActivity
                     .setActivateOnItemClick(true);
         }
 
-        // TODO: If exposing deep links into your app, handle intents here.
+        //pass the routes to the fragment
+        RouteListFragment routeListFragment = ((RouteListFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.route_list));
+        routeListFragment.setRoutes(routes);
     }
 
     /**
