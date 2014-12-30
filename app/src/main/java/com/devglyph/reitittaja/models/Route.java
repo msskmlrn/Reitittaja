@@ -79,6 +79,23 @@ public class Route implements Parcelable{
         this.legs = legs;
     }
 
+    /**
+     * Get the start location of this route
+     * @return start location
+     */
+    public RouteLocation getStartLocation() {
+        return this.getLegs().get(0).getStartLocation();
+    }
+
+
+    /**
+     * Get the end location of this route
+     * @return end location
+     */
+    public RouteLocation getEndLocation() {
+        return this.getLegs().get(this.getLegs().size() - 1).getEndLocation();
+    }
+
     @Override
     public int describeContents() {
         return 0;
