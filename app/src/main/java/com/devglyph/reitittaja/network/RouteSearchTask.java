@@ -6,11 +6,12 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.devglyph.reitittaja.models.Coordinates;
+import com.devglyph.reitittaja.Util;
+import com.devglyph.reitittaja.activities.RouteListActivity;
 import com.devglyph.reitittaja.fragments.JourneyPlannerFragment;
+import com.devglyph.reitittaja.models.Coordinates;
 import com.devglyph.reitittaja.models.Route;
 import com.devglyph.reitittaja.models.RouteLeg;
-import com.devglyph.reitittaja.activities.RouteListActivity;
 import com.devglyph.reitittaja.models.RouteLocation;
 
 import org.json.JSONArray;
@@ -194,11 +195,16 @@ public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
             double length = legObject.getDouble(TAG_LEG_LENGTH);
             double duration = legObject.getDouble(TAG_LEG_DURATION);
             String type = legObject.getString(TAG_LEG_TYPE);
+            int typeInt = Util.parseType(type);
 
             String lineCode = null;
             if (legObject.has(TAG_LEG_LINE_CODE)) {
                 lineCode = legObject.getString(TAG_LEG_LINE_CODE);
             }
+            String original = lineCode;
+            lineCode = Util.parseJoreCode(typeInt, lineCode);
+
+            Log.d(LOG_TAG, "lineCode " + lineCode + ", original "+original);
 
             JSONArray locations = legObject.getJSONArray(TAG_LEG_LOCATIONS);
             JSONArray shape = legObject.getJSONArray(TAG_LEG_SHAPE);
@@ -206,7 +212,7 @@ public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
             ArrayList<RouteLocation> locationsList = getLegLocations(locations);
             ArrayList<Coordinates> shapeList = getLegShape(shape);
 
-            leg = new RouteLeg(length, duration, type, lineCode, locationsList, shapeList);
+            leg = new RouteLeg(length, duration, typeInt, lineCode, locationsList, shapeList);
         }
         catch (JSONException e) {
             Log.e(LOG_TAG, "Cannot process JSON results", e);
