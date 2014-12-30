@@ -450,7 +450,7 @@ public class JourneyPlannerFragment extends Fragment {
         }
         else { //parse the chosen time
             cal = Calendar.getInstance();
-            cal.set(Calendar.HOUR, mHours);
+            cal.set(Calendar.HOUR_OF_DAY, mHours);
             cal.set(Calendar.MINUTE, mMinutes);
         }
 
@@ -458,6 +458,8 @@ public class JourneyPlannerFragment extends Fragment {
         Date dTime = cal.getTime();
         simpleDateFormat = new SimpleDateFormat("HHmm");
         time = simpleDateFormat.format(dTime);
+
+        Log.d(LOG_TAG, "time set "+time);
 
         return time;
     }
