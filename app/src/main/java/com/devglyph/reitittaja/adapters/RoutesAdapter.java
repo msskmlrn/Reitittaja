@@ -85,7 +85,6 @@ public class RoutesAdapter extends BaseExpandableListAdapter {
 
             holder = new ViewHolder();
             holder.duration = (TextView) convertView.findViewById(R.id.text_s_duration);
-            holder.firstRowBorder = (TextView) convertView.findViewById(R.id.first_row_top_border);
             holder.iconRow = (TableRow) convertView.findViewById(R.id.row_for_icons);
             holder.startTime = (TextView) convertView.findViewById(R.id.text_s_st_time);
             holder.endTime = (TextView) convertView.findViewById(R.id.text_s_end_time);
@@ -99,9 +98,6 @@ public class RoutesAdapter extends BaseExpandableListAdapter {
         holder.startTime.setText(mGroupData.get(groupPosition).get("st_time"));
         holder.endTime.setText(mGroupData.get(groupPosition).get("end_time"));
 
-        holder.firstRowBorder.setText("Routes");
-        holder.firstRowBorder.setVisibility(View.VISIBLE);
-
         holder.iconRow.removeAllViews();
 
         addLegIconsToGroup(holder, groupPosition);
@@ -114,9 +110,11 @@ public class RoutesAdapter extends BaseExpandableListAdapter {
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        TextView textView = new TextView(mContext);
-        textView.setText(getChild(groupPosition, childPosition).toString());
-        return textView;
+        //TextView textView = new TextView(mContext);
+        //textView.setText(getChild(groupPosition, childPosition).toString());
+        //return textView;
+
+        return convertView;
     }
 
     @Override
