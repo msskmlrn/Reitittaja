@@ -37,9 +37,12 @@ public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
 
     private JourneyPlannerFragment journeyPlannerFragment;
     private ProgressDialog pDialog;
+    private String startPlace, endPlace;
 
-    public RouteSearchTask(JourneyPlannerFragment journeyPlannerFragment) {
+    public RouteSearchTask(JourneyPlannerFragment journeyPlannerFragment, String startPlace, String endPlace) {
         this.journeyPlannerFragment = journeyPlannerFragment;
+        this.startPlace = startPlace;
+        this.endPlace = endPlace;
     }
 
     @Override
@@ -118,13 +121,21 @@ public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
     protected void onPostExecute(ArrayList<Route> routes) {
         super.onPostExecute(routes);
 
+        //dismiss the wait dialog
         if (pDialog != null && pDialog.isShowing()) {
             pDialog.dismiss();
         }
 
+        //launch an activity to show the routes if any routes were found
         if (routes != null && !routes.isEmpty()) {
             Intent intent = new Intent(journeyPlannerFragment.getActivity(), RouteListActivity.class);
+
+            //add the routes to the intent as extras
             intent.putParcelableArrayListExtra(SER_KEY, routes);
+
+            //add the start and end place names to the intent as extras
+            intent.putExtra("startPlace", startPlace);
+            intent.putExtra("endPlace", endPlace);
 
             journeyPlannerFragment.startActivity(intent);
         }
