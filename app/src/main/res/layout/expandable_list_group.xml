@@ -2,7 +2,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:background="#ffffff"
     android:focusable="false" >
 
     <TableLayout
@@ -10,28 +9,6 @@
         android:layout_height="wrap_content"
         android:focusable="false"
         android:stretchColumns="*" >
-
-        <TableRow
-            android:id="@+id/row_for_border"
-            android:layout_width="fill_parent"
-            android:layout_height="1dip"
-            android:background="#FFFFFF"
-            android:focusable="false" >
-
-            <TextView
-                android:id="@+id/first_row_top_border"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                android:background="#33ccff"
-                android:focusable="false"
-                android:gravity="center"
-                android:textColor="@android:color/black"
-                android:textSize="16sp"
-                android:typeface="sans"
-                android:visibility="gone" />
-        </TableRow>
 
         <TableRow>
 
@@ -43,7 +20,17 @@
                 android:layout_weight="1"
                 android:focusable="false"
                 android:gravity="left"
-                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                android:typeface="sans" />
+
+            <TextView
+                android:id="@+id/text_s_duration"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:focusable="false"
+                android:gravity="center"
                 android:textSize="14sp"
                 android:typeface="sans" />
 
@@ -55,7 +42,6 @@
                 android:layout_weight="1"
                 android:focusable="false"
                 android:gravity="right"
-                android:textColor="@android:color/black"
                 android:textSize="14sp"
                 android:typeface="sans" />
         </TableRow>
@@ -68,7 +54,7 @@
                 android:layout_height="fill_parent"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:contentDescription="Hello"
+                android:contentDescription="mode icon"
                 android:focusable="false"
                 android:visibility="gone" />
 
@@ -80,23 +66,7 @@
                 android:layout_weight="1"
                 android:focusable="false"
                 android:gravity="center"
-                android:textColor="@android:color/black"
                 android:visibility="gone" />
-        </TableRow>
-
-        <TableRow>
-            <TextView
-                android:id="@+id/text_s_duration"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                android:focusable="false"
-                android:gravity="center"
-                android:paddingBottom="10dip"
-                android:textColor="@android:color/black"
-                android:textSize="14sp"
-                android:typeface="sans" />
         </TableRow>
 
         <TableRow>

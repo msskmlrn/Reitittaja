@@ -22,7 +22,6 @@
                 android:layout_weight="1"
                 android:focusable="false"
                 android:gravity="left"
-                android:textColor="@android:color/black"
                 android:textSize="16sp"
                 android:typeface="sans" />
 
@@ -33,7 +32,6 @@
                 android:layout_weight="1"
                 android:focusable="false"
                 android:gravity="right"
-                android:textColor="@android:color/black"
                 android:textSize="16sp"
                 android:typeface="sans" />
         </TableRow>
