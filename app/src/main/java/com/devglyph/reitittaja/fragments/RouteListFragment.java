@@ -152,9 +152,6 @@ public class RouteListFragment extends Fragment {
     private void setTripStartAndEndDetailsToView() {
         final Runnable startPlaceRunnable = new Runnable() {
             public void run() {
-
-                Log.d(LOG_TAG, "set start place runnable, "+routes.get(0).getStartLocation().getName());
-                //startPlace.setText(routes.get(0).getStartLocation().getName());
                 startPlace.setText(startPlaceName);
             }
         };
@@ -162,8 +159,6 @@ public class RouteListFragment extends Fragment {
 
         final Runnable endPlaceRunnable = new Runnable() {
             public void run() {
-                Log.d(LOG_TAG, "set end place runnable, "+routes.get(routes.size() - 1).getEndLocation().getName());
-                //endPlace.setText(routes.get(routes.size() - 1).getEndLocation().getName());
                 endPlace.setText(endPlaceName);
             }
         };
@@ -174,8 +169,6 @@ public class RouteListFragment extends Fragment {
      * Process the route information to fit the expandable list groups
      */
     private void processTripInfo() {
-        int currentTripDuration = 0;
-
         for (int i = 0; i < routes.size(); i++) {
             Route route = routes.get(i);
 
@@ -183,8 +176,8 @@ public class RouteListFragment extends Fragment {
             groupData.add(currentGroupMap);
 
             currentGroupMap.put("duration", calculateDurationInHHMM(route.getDuration()));
-
-            putTripInfoToCurrentGroupMap(currentGroupMap, currentTripDuration, route, i);
+            currentGroupMap.put("st_time", parseTimeToHHMM(route.getStartLocation().getDepartureTime()));
+            currentGroupMap.put("end_time", parseTimeToHHMM(route.getEndLocation().getArrivalTime()));
 
             childData.add(processTripLegInfo(route));
         }
@@ -249,11 +242,9 @@ public class RouteListFragment extends Fragment {
      */
     private ArrayList<HashMap<String, String>> processTripLegInfo(Route route) {
         ArrayList<HashMap<String, String>> children = new ArrayList<HashMap<String, String>>();
-        String lineCode;
         String iconString;
 
         for (int j = 0; j < route.getLegs().size(); j++) {
-            lineCode = "";
             iconString = "";
 
             HashMap<String, String> currentChildMap = new HashMap<String, String>();
@@ -261,58 +252,10 @@ public class RouteListFragment extends Fragment {
 
             RouteLeg leg = route.getLegs().get(j);
 
-            /*
-            int parsedMode = 0;
-            try {
-                parsedMode = Integer.parseInt(leg.getLineCode());
-                iconString = Library.getLegIcon(parsedMode, false);
-            }
-            catch (NumberFormatException ex) {
-                parsedMode = DataHolder.UNKNOWN;
-            }
-
-            if (leg.getLineCode() != null && !leg.getLineCode().isEmpty()) {
-                lineCode = leg.getLineCode();
-            }
-            lineCode = processLineCodes(route, lineCode);
-            */
-
             putLegDataToMap(currentChildMap, iconString, leg.getLineCode(), leg);
         }
 
         return children;
-    }
-
-    /**
-     * Ignore line codes that do not offer any more information than the icon
-     * @param route
-     * @param lineCode
-     * @return empty string for useless line codes, otherwise a useful line code
-     */
-    private String processLineCodes(Route route, String lineCode) {
-        //if there is only one leg, then ignore lineCodes that are obvious.
-        //Otherwise with only one icon, the legCode under it will be misaligned.
-        if (route.getLegs().size() == 1) {
-            if (lineCode.equals("walk") || lineCode.equals("cycle") || lineCode.equals("car") ||
-                    lineCode.equals("bus") || lineCode.equals("tram") || lineCode.equals("train") ||
-                    lineCode.equals("metro") || lineCode.equals("ferry")) {
-                lineCode = "";
-            }
-        }
-        return lineCode;
-    }
-
-    /**
-     * Put route information to the map
-     * @param curGroupMap
-     * @param currentTripDuration
-     * @param route
-     * @param i
-     */
-    private void putTripInfoToCurrentGroupMap(HashMap<String, String> curGroupMap, int currentTripDuration,
-                                              Route route, int i) {
-        curGroupMap.put("st_time", parseTimeToHHMM(route.getStartLocation().getDepartureTime()));
-        curGroupMap.put("end_time", parseTimeToHHMM(route.getEndLocation().getArrivalTime()));
     }
 
     /**
