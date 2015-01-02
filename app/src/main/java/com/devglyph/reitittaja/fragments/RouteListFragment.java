@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +40,8 @@ public class RouteListFragment extends Fragment {
      */
     private static final String STATE_ACTIVATED_POSITION = "activated_position";
 
+    private final String LOG_TAG = RouteListFragment.class.getSimpleName();
+
     //the groupData map will hold the top level trip info
     private ArrayList<HashMap<String, String>> groupData = new ArrayList<HashMap<String, String>>();
 
@@ -51,6 +54,7 @@ public class RouteListFragment extends Fragment {
     private TextView startPlace, endPlace;
     private Handler mHandler;
     private RoutesAdapter mRoutesAdapter;
+    private String startPlaceName, endPlaceName;
 
     /**
      * The fragment's current callback object, which is notified of list item
@@ -95,15 +99,6 @@ public class RouteListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // TODO: replace with a real list adapter.
-        /*
-        setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
-                getActivity(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                DummyContent.ITEMS));
-                */
     }
 
     @Override
@@ -111,19 +106,44 @@ public class RouteListFragment extends Fragment {
         mHandler = new Handler();
 
         View v = inflater.inflate(R.layout.fragment_routes, null);
-        ExpandableListView elv = (ExpandableListView) v.findViewById(R.id.list_routes);
+        eView = (ExpandableListView) v.findViewById(R.id.list_routes);
 
         startPlace = (TextView) v.findViewById(R.id.start_place);
         endPlace = (TextView) v.findViewById(R.id.end_place);
 
-        setTripStartAndEndDetailsToView();
-
         mRoutesAdapter = new RoutesAdapter(childData, groupData, getActivity());
-        elv.setAdapter(mRoutesAdapter);
+        eView.setAdapter(mRoutesAdapter);
 
-        //expandGroups();
-        //addOnGroupClickListeners();
+        expandGroups();
+        addOnGroupClickListeners();
+
         return v;
+    }
+
+    /**
+     * Expand groups
+     */
+    private void expandGroups() {
+        int groupCount = mRoutesAdapter.getGroupCount();
+
+        for (int i = 0; i < groupCount; i++) {
+            eView.expandGroup(i);
+        }
+    }
+
+    /**
+     * Add onGroupClickListeners to trips
+     */
+    private void addOnGroupClickListeners() {
+        eView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+            public boolean onGroupClick(ExpandableListView parent,
+                                        View v, int groupPosition, long id) {
+
+                Log.d(LOG_TAG, "onGroupClick, group "+ groupPosition);
+
+                return true;
+            }
+        });
     }
 
     /**
@@ -133,17 +153,18 @@ public class RouteListFragment extends Fragment {
         final Runnable startPlaceRunnable = new Runnable() {
             public void run() {
 
-                startPlace.setText(routes.get(0).getLegs().get(0).getLocations().get(0).getName());
+                Log.d(LOG_TAG, "set start place runnable, "+routes.get(0).getStartLocation().getName());
+                //startPlace.setText(routes.get(0).getStartLocation().getName());
+                startPlace.setText(startPlaceName);
             }
         };
         mHandler.post(startPlaceRunnable);
 
         final Runnable endPlaceRunnable = new Runnable() {
             public void run() {
-                endPlace.setText(routes.get(routes.size() - 1).getLegs().get(
-                        routes.get(routes.size() - 1).getLegs().size() - 1).getLocations().get(
-                        routes.get(routes.size() - 1).getLegs().get(
-                                routes.get(routes.size() - 1).getLegs().size() - 1).getLocations().size() - 1).getName());
+                Log.d(LOG_TAG, "set end place runnable, "+routes.get(routes.size() - 1).getEndLocation().getName());
+                //endPlace.setText(routes.get(routes.size() - 1).getEndLocation().getName());
+                endPlace.setText(endPlaceName);
             }
         };
         mHandler.post(endPlaceRunnable);
@@ -394,5 +415,14 @@ public class RouteListFragment extends Fragment {
     private void updateAdapter() {
         processTripInfo();
         mRoutesAdapter.notifyDataSetChanged();
+        setTripStartAndEndDetailsToView();
+    }
+
+    public void setStartPlaceName(String name) {
+        this.startPlaceName = name;
+    }
+
+    public void setEndPlaceName(String name) {
+        this.endPlaceName = name;
     }
 }

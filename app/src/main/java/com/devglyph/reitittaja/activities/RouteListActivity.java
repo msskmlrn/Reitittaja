@@ -44,7 +44,13 @@ public class RouteListActivity extends FragmentActivity
         setContentView(R.layout.activity_route_list);
 
         Intent intent = getIntent();
+
+        //get the route info from the extras
         ArrayList<Route> routes = intent.getParcelableArrayListExtra(RouteSearchTask.SER_KEY);
+
+        //get the start and end place name info from the extras
+        String startPlace = intent.getStringExtra("startPlace");
+        String endPlace = intent.getStringExtra("endPlace");
 
         if (findViewById(R.id.route_detail_container) != null) {
             // The detail container view will be present only in the
@@ -64,6 +70,10 @@ public class RouteListActivity extends FragmentActivity
         RouteListFragment routeListFragment = ((RouteListFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.route_list));
         routeListFragment.setRoutes(routes);
+
+        //pass the start and end place names to the fragment
+        routeListFragment.setStartPlaceName(startPlace);
+        routeListFragment.setEndPlaceName(endPlace);
     }
 
     /**
