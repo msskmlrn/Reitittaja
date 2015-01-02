@@ -11,12 +11,19 @@ public class Util {
      * @return a human readable line code
      */
     public static String parseJoreCode(int type, String joreCode) {
-
-        //do not parse a "line code" for walking, cycling, metro or ferry
-        if (type == RouteLeg.WALK || type == RouteLeg.METRO || type == RouteLeg.FERRY || type == RouteLeg.CYCLE) {
-            return "";
+        //line codes for walk, metro, ferry and cycle are just the mode names
+        if (type == RouteLeg.WALK) {
+            return "walk";
         }
-
+        else if (type == RouteLeg.METRO) {
+            return "metro";
+        }
+        else if (type == RouteLeg.FERRY) {
+            return "ferry";
+        }
+        else if (type == RouteLeg.CYCLE) {
+            return "cycle";
+        }
         //return the letter for local trains
         else if (type == RouteLeg.TRAIN) {
             return joreCode.substring(4, 5);
