@@ -2,8 +2,8 @@ package com.devglyph.reitittaja.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 
 import com.devglyph.reitittaja.R;
@@ -42,8 +42,8 @@ public class RouteDetailActivity extends ActionBarActivity {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putString(RouteDetailFragment.ARG_ITEM_ID,
-                    getIntent().getStringExtra(RouteDetailFragment.ARG_ITEM_ID));
+            arguments.putParcelable(RouteDetailFragment.ROUTE_DETAIL_KEY,
+                    getIntent().getParcelableExtra(RouteDetailFragment.ROUTE_DETAIL_KEY));
             RouteDetailFragment fragment = new RouteDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()

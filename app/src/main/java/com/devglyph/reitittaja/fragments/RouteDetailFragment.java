@@ -7,9 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-
 import com.devglyph.reitittaja.R;
-import com.devglyph.reitittaja.dummy.DummyContent;
+import com.devglyph.reitittaja.models.Route;
 
 /**
  * A fragment representing a single Route detail screen.
@@ -22,12 +21,10 @@ public class RouteDetailFragment extends Fragment {
      * The fragment argument representing the item ID that this fragment
      * represents.
      */
-    public static final String ARG_ITEM_ID = "item_id";
+    public  final static String ROUTE_DETAIL_KEY = "com.devglyph.route_details";
 
-    /**
-     * The dummy content this fragment is presenting.
-     */
-    private DummyContent.DummyItem mItem;
+    //the route whose details are to be shown
+    private Route mRoute;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -40,11 +37,8 @@ public class RouteDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments().containsKey(ARG_ITEM_ID)) {
-            // Load the dummy content specified by the fragment
-            // arguments. In a real-world scenario, use a Loader
-            // to load content from a content provider.
-            mItem = DummyContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
+        if (getArguments().containsKey(ROUTE_DETAIL_KEY)) {
+            mRoute = getArguments().getParcelable(ROUTE_DETAIL_KEY);
         }
     }
 
@@ -54,8 +48,9 @@ public class RouteDetailFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_route_detail, container, false);
 
         // Show the dummy content as text in a TextView.
-        if (mItem != null) {
-            ((TextView) rootView.findViewById(R.id.route_detail)).setText(mItem.content);
+        if (mRoute != null) {
+            ((TextView) rootView.findViewById(R.id.route_detail)).setText
+                    (mRoute.getStartLocation().getName() + " - " + mRoute.getEndLocation().getName());
         }
 
         return rootView;

@@ -76,7 +76,7 @@ public class RouteListFragment extends Fragment {
         /**
          * Callback for when an item has been selected.
          */
-        public void onItemSelected(String id);
+        public void onItemSelected(int index);
     }
 
     /**
@@ -85,7 +85,7 @@ public class RouteListFragment extends Fragment {
      */
     private static Callbacks sDummyCallbacks = new Callbacks() {
         @Override
-        public void onItemSelected(String id) {
+        public void onItemSelected(int index) {
         }
     };
 
@@ -140,6 +140,8 @@ public class RouteListFragment extends Fragment {
                                         View v, int groupPosition, long id) {
 
                 Log.d(LOG_TAG, "onGroupClick, group "+ groupPosition);
+                //((Callback) getActivity()).onItemSelected("as");
+                mCallbacks.onItemSelected(groupPosition);
 
                 return true;
             }

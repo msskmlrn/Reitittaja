@@ -38,6 +38,8 @@ public class RouteListActivity extends FragmentActivity
      */
     private boolean mTwoPane;
 
+    private ArrayList<Route> routes;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,7 +48,7 @@ public class RouteListActivity extends FragmentActivity
         Intent intent = getIntent();
 
         //get the route info from the extras
-        ArrayList<Route> routes = intent.getParcelableArrayListExtra(RouteSearchTask.SER_KEY);
+        routes = intent.getParcelableArrayListExtra(RouteSearchTask.SER_KEY);
 
         //get the start and end place name info from the extras
         String startPlace = intent.getStringExtra("startPlace");
@@ -81,25 +83,28 @@ public class RouteListActivity extends FragmentActivity
      * indicating that the item with the given ID was selected.
      */
     @Override
-    public void onItemSelected(String id) {
+    public void onItemSelected(int index) {
         if (mTwoPane) {
             // In two-pane mode, show the detail view in this activity by
             // adding or replacing the detail fragment using a
             // fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putString(RouteDetailFragment.ARG_ITEM_ID, id);
+            arguments.putParcelable(RouteDetailFragment.ROUTE_DETAIL_KEY, routes.get(index));
             RouteDetailFragment fragment = new RouteDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.route_detail_container, fragment)
                     .commit();
 
+
         } else {
             // In single-pane mode, simply start the detail activity
             // for the selected item ID.
             Intent detailIntent = new Intent(this, RouteDetailActivity.class);
-            detailIntent.putExtra(RouteDetailFragment.ARG_ITEM_ID, id);
+            detailIntent.putExtra(RouteDetailFragment.ROUTE_DETAIL_KEY, routes.get(index));
+
             startActivity(detailIntent);
+
         }
     }
 }
