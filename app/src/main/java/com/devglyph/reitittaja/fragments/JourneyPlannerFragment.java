@@ -401,7 +401,7 @@ public class JourneyPlannerFragment extends Fragment {
             URL url = new URL(QUERY_BASE_URL + paramString);
             Log.d(LOG_TAG, "launching async task "+url);
 
-            RouteSearchTask task = new RouteSearchTask(this);
+            RouteSearchTask task = new RouteSearchTask(this, startLocation.getName(), endLocation.getName());
             task.execute(url);
         }
         catch (MalformedURLException ex) {
