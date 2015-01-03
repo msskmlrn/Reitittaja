@@ -1,8 +1,21 @@
 package com.devglyph.reitittaja;
 
+import android.util.Log;
+
 import com.devglyph.reitittaja.models.RouteLeg;
 
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+
 public class Util {
+
+    public static final String DATE_FORMAT_FULL = "yyyyMMddHHmm";
+    public static final String DATE_FORMAT_TIME = "HHmm";
+
+    private final static String LOG_TAG = Util.class.getSimpleName();
 
     /**
      * Construct a human readable line code for the leg
@@ -67,5 +80,75 @@ public class Util {
             number = 0;
         }
         return number;
+    }
+
+    /**
+     * Round the given distance add append " m" or " km" to the return value
+     * @param distance, the distance to be rounded in meters
+     * @return a rounded distance with " m" or " km" appended to the value
+     */
+    public static String roundDistance(double distance) {
+        if (distance < 1000) {
+            return Math.round(distance) +" m";
+        }
+        else {
+            //kilometers to be shown, so round the number and remove trailing zeroes
+            double temp = distance / 1000;
+            BigDecimal b = BigDecimal.valueOf(temp).setScale(1, BigDecimal.ROUND_HALF_UP);
+            return b.toString() + " km";
+        }
+    }
+
+    public static Date parseDate(String dateFormat, String time) {
+
+        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+
+        try {
+            return sdf.parse(time);
+        }
+        catch (ParseException e) {
+            Log.e(LOG_TAG, "Cannot parse time", e);
+            return null;
+        }
+    }
+
+    public static String parseDate(String dateFormat, long time) {
+
+        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+
+        try {
+            return sdf.format(time);
+        }
+        catch (IllegalArgumentException e) {
+            Log.e(LOG_TAG, "Cannot parse time", e);
+            return null;
+        }
+    }
+
+    public static String convertSecondsToHHmmss(long secs) {
+        String time = "";
+        long original = secs;
+
+        long hours = TimeUnit.SECONDS.toHours(secs);
+        secs -= TimeUnit.HOURS.toSeconds(hours);
+        long minutes = TimeUnit.SECONDS.toMinutes(secs);
+        secs -= TimeUnit.MINUTES.toSeconds(minutes);
+        long seconds = TimeUnit.SECONDS.toSeconds(secs);
+
+        //if the duration was at least one hour long then add the hour info
+        if (hours > 0) {
+            time = time + hours + " h";
+        }
+        //same goes for the minutes
+        if (minutes > 0) {
+            time = time + " " + minutes + " min";
+        }
+
+        //only add the seconds info if the duration was < 60 seconds
+        if (original < 60) {
+            time = time + " " + seconds + " s";
+        }
+
+        return time;
     }
 }
