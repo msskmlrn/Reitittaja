@@ -24,10 +24,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
 
@@ -163,7 +160,7 @@ public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
             JSONObject routeObject;
 
             double length;
-            double duration;
+            long duration;
             JSONArray routeLegs;
 
             Route route;
@@ -173,7 +170,7 @@ public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
                 routeObject = routeArray.getJSONObject(0);
 
                 length = routeObject.getDouble(TAG_ROUTE_LENGTH);
-                duration = routeObject.getDouble(TAG_ROUTE_DURATION);
+                duration = routeObject.getLong(TAG_ROUTE_DURATION);
                 routeLegs = routeObject.getJSONArray(TAG_ROUTE_LEGS);
 
                 legs = new ArrayList<>();
@@ -204,7 +201,7 @@ public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
 
         try {
             double length = legObject.getDouble(TAG_LEG_LENGTH);
-            double duration = legObject.getDouble(TAG_LEG_DURATION);
+            long duration = legObject.getLong(TAG_LEG_DURATION);
             String type = legObject.getString(TAG_LEG_TYPE);
             int typeInt = Util.parseType(type);
 
@@ -272,8 +269,8 @@ public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
                         coordinatesObject.getDouble(TAG_LOCATION_X_COORDINATE));
 
 
-                routeLocation = new RouteLocation(parseDateFromYYYYMMDDHHMM(arrivalTime),
-                        parseDateFromYYYYMMDDHHMM(departureTime), coordinates);
+                routeLocation = new RouteLocation(Util.parseDate(Util.DATE_FORMAT_FULL, arrivalTime),
+                        Util.parseDate(Util.DATE_FORMAT_FULL, departureTime), coordinates);
 
                 //check if the following parameters are present
                 if (location.has(TAG_LOCATION_NAME)) {
@@ -304,18 +301,7 @@ public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
         return locations;
     }
 
-    private Date parseDateFromYYYYMMDDHHMM(String time) {
-        String DATE_FORMAT = "yyyyMMddHHmm";
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
 
-        try {
-            return sdf.parse(time);
-        }
-        catch (ParseException e) {
-            Log.e(LOG_TAG, "Cannot parse time", e);
-            return null;
-        }
-    }
 
     private int tryParsingStringToInt(String string) {
         try {

@@ -13,14 +13,14 @@ import java.util.ArrayList;
 public class Route implements Parcelable{
 
     private double length;
-    private double duration;
+    private long duration;
     private ArrayList<RouteLeg> legs;
 
     public Route() {
 
     }
 
-    public Route(double length, double duration, ArrayList<RouteLeg> legs) {
+    public Route(double length, long duration, ArrayList<RouteLeg> legs) {
         this.length = length;
         this.duration = duration;
         this.legs = legs;
@@ -51,7 +51,7 @@ public class Route implements Parcelable{
      * Getter for route duration
      * @return route duration
      */
-    public double getDuration() {
+    public long getDuration() {
         return duration;
     }
 
@@ -59,7 +59,7 @@ public class Route implements Parcelable{
      * Setter for route duration
      * @param duration
      */
-    public void setDuration(double duration) {
+    public void setDuration(long duration) {
         this.duration = duration;
     }
 
@@ -104,7 +104,7 @@ public class Route implements Parcelable{
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeDouble(length);
-        dest.writeDouble(duration);
+        dest.writeLong(duration);
         dest.writeTypedList(legs);
     }
 
@@ -120,7 +120,7 @@ public class Route implements Parcelable{
 
     private Route(Parcel in) {
         length = in.readDouble();
-        duration = in.readDouble();
+        duration = in.readLong();
         legs = new ArrayList<RouteLeg>();
         in.readTypedList(legs, RouteLeg.CREATOR);
     }

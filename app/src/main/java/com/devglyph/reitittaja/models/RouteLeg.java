@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class RouteLeg implements Parcelable {
 
     private double length;
-    private double duration;
+    private long duration;
     private int type;
     private String lineCode;
     private ArrayList<RouteLocation> locations;
@@ -51,7 +51,7 @@ public class RouteLeg implements Parcelable {
 
     }
 
-    public RouteLeg(double length, double duration, int type,
+    public RouteLeg(double length, long duration, int type,
                     String lineCode, ArrayList<RouteLocation> locations,
                     ArrayList<Coordinates> shape) {
 
@@ -83,7 +83,7 @@ public class RouteLeg implements Parcelable {
      * Getter for route leg duration
      * @return route leg duration
      */
-    public double getDuration() {
+    public long getDuration() {
         return duration;
     }
 
@@ -91,7 +91,7 @@ public class RouteLeg implements Parcelable {
      * Setter for route leg duration
      * @param duration
      */
-    public void setDuration(double duration) {
+    public void setDuration(long duration) {
         this.duration = duration;
     }
 
@@ -183,7 +183,7 @@ public class RouteLeg implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeDouble(length);
-        dest.writeDouble(duration);
+        dest.writeLong(duration);
         dest.writeInt(type);
         dest.writeString(lineCode);
         dest.writeTypedList(locations);
@@ -202,7 +202,7 @@ public class RouteLeg implements Parcelable {
 
     private RouteLeg(Parcel in) {
         length = in.readDouble();
-        duration = in.readDouble();
+        duration = in.readLong();
         type = in.readInt();
         lineCode = in.readString();
         locations = new ArrayList<RouteLocation>();
