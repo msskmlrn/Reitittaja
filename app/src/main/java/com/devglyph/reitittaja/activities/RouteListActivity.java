@@ -50,9 +50,8 @@ public class RouteListActivity extends FragmentActivity
         //get the route info from the extras
         routes = intent.getParcelableArrayListExtra(RouteSearchTask.SER_KEY);
 
-        //get the start and end place name info from the extras
-        String startPlace = intent.getStringExtra("startPlace");
-        String endPlace = intent.getStringExtra("endPlace");
+        String startPlace = routes.get(0).getStartLocation().getName();
+        String endPlace = routes.get(0).getEndLocation().getName();
 
         if (findViewById(R.id.route_detail_container) != null) {
             // The detail container view will be present only in the
@@ -104,7 +103,6 @@ public class RouteListActivity extends FragmentActivity
             detailIntent.putExtra(RouteDetailFragment.ROUTE_DETAIL_KEY, routes.get(index));
 
             startActivity(detailIntent);
-
         }
     }
 }
