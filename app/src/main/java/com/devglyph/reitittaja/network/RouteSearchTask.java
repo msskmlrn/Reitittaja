@@ -1,14 +1,11 @@
 package com.devglyph.reitittaja.network;
 
 import android.app.ProgressDialog;
-import android.content.Intent;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.devglyph.reitittaja.Util;
-import com.devglyph.reitittaja.activities.RouteListActivity;
-import com.devglyph.reitittaja.fragments.JourneyPlannerFragment;
 import com.devglyph.reitittaja.models.Coordinates;
 import com.devglyph.reitittaja.models.Route;
 import com.devglyph.reitittaja.models.RouteLeg;
@@ -32,19 +29,23 @@ public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
 
     public  final static String SER_KEY = "com.devglyph.routes";
 
-    private JourneyPlannerFragment journeyPlannerFragment;
+    private Context mContext;
     private ProgressDialog pDialog;
-    private String startPlace, endPlace;
+    private OnRouteSearchCompleted onRouteSearchCompleted;
 
-    public RouteSearchTask(JourneyPlannerFragment journeyPlannerFragment, String startPlace, String endPlace) {
-        this.journeyPlannerFragment = journeyPlannerFragment;
-        this.startPlace = startPlace;
-        this.endPlace = endPlace;
+
+    public interface OnRouteSearchCompleted{
+        void onRouteSearchTaskCompleted(ArrayList<Route> routes);
+    }
+
+    public RouteSearchTask(Context context, OnRouteSearchCompleted onRouteSearchCompleted) {
+        this.onRouteSearchCompleted = onRouteSearchCompleted;
+        this.mContext = context;
     }
 
     @Override
     protected void onPreExecute() {
-        pDialog = new ProgressDialog(journeyPlannerFragment.getActivity());
+        pDialog = new ProgressDialog(mContext);
         pDialog.setMessage("Searching routes");
         pDialog.show();
     }
@@ -111,7 +112,6 @@ public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
         }
 
         return getRoutesFromJson(routesJsonStr);
-
     }
 
     @Override
@@ -123,23 +123,7 @@ public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
             pDialog.dismiss();
         }
 
-        //launch an activity to show the routes if any routes were found
-        if (routes != null && !routes.isEmpty()) {
-            Intent intent = new Intent(journeyPlannerFragment.getActivity(), RouteListActivity.class);
-
-            //add the routes to the intent as extras
-            intent.putParcelableArrayListExtra(SER_KEY, routes);
-
-            //add the start and end place names to the intent as extras
-            intent.putExtra("startPlace", startPlace);
-            intent.putExtra("endPlace", endPlace);
-
-            journeyPlannerFragment.startActivity(intent);
-        }
-        else {
-            String message = "Please try again.";
-            Toast.makeText(journeyPlannerFragment.getActivity(), message, Toast.LENGTH_SHORT).show();
-        }
+        onRouteSearchCompleted.onRouteSearchTaskCompleted(routes);
 
         Log.d(LOG_TAG, "onPostExecute");
     }
@@ -292,7 +276,6 @@ public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
 
                 locations.add(routeLocation);
             }
-
         }
         catch (JSONException e) {
             Log.e(LOG_TAG, "Cannot process JSON results", e);
@@ -300,8 +283,6 @@ public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
 
         return locations;
     }
-
-
 
     private int tryParsingStringToInt(String string) {
         try {
@@ -312,7 +293,6 @@ public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
             return -1;
         }
     }
-
 
     private ArrayList<Coordinates> getLegShape(JSONArray shapeArray) {
         ArrayList<Coordinates> shape = new ArrayList<>();
