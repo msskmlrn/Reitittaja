@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -26,8 +27,11 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.devglyph.reitittaja.R;
+import com.devglyph.reitittaja.activities.RouteListActivity;
 import com.devglyph.reitittaja.adapters.PlacesAutoCompleteAdapter;
 import com.devglyph.reitittaja.models.Location;
+import com.devglyph.reitittaja.models.Route;
+import com.devglyph.reitittaja.network.LocationSearchTask;
 import com.devglyph.reitittaja.network.RouteSearchTask;
 
 import org.apache.http.NameValuePair;
@@ -51,7 +55,10 @@ import java.util.List;
  * Use the {@link JourneyPlannerFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class JourneyPlannerFragment extends Fragment {
+public class JourneyPlannerFragment extends Fragment
+        implements RouteSearchTask.OnRouteSearchCompleted,
+        LocationSearchTask.OnLocationSearchCompleted {
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -92,6 +99,8 @@ public class JourneyPlannerFragment extends Fragment {
     private Location endLocation;
 
     private View mView;
+
+    private ArrayList<Route> routes;
 
     /**
      * Use this factory method to create a new instance of
@@ -334,9 +343,6 @@ public class JourneyPlannerFragment extends Fragment {
                     }
 
                     prepareSearchQuery();
-
-                    Log.d(LOG_TAG, "search");
-
                 }
             }
         });
@@ -401,7 +407,7 @@ public class JourneyPlannerFragment extends Fragment {
             URL url = new URL(QUERY_BASE_URL + paramString);
             Log.d(LOG_TAG, "launching async task "+url);
 
-            RouteSearchTask task = new RouteSearchTask(this, startLocation.getName(), endLocation.getName());
+            RouteSearchTask task = new RouteSearchTask(getActivity(), this);
             task.execute(url);
         }
         catch (MalformedURLException ex) {
@@ -668,5 +674,39 @@ public class JourneyPlannerFragment extends Fragment {
 
     public void setLocationList(ArrayList<Location> locationList) {
         this.locationList = locationList;
+    }
+
+    /**
+     * Called when the route search task finishes
+     * @param routes
+     */
+    @Override
+    public void onRouteSearchTaskCompleted(ArrayList<Route> routes) {
+        //launch the location search task to fill in the missing location information
+        LocationSearchTask task = new LocationSearchTask(getActivity(), this);
+        task.execute(routes);
+    }
+
+    /**
+     * Called when the location search task finishes
+     * @param routes
+     */
+    @Override
+    public void onLocationSearchTaskCompleted(ArrayList<Route> routes) {
+        this.routes = routes;
+        Log.d(LOG_TAG, "startRoutesActivity called");
+
+        //launch an activity to show the routes if any routes were found
+        if (routes != null && !routes.isEmpty()) {
+            Intent intent = new Intent(getActivity(), RouteListActivity.class);
+
+            //add the routes to the intent as extras
+            intent.putParcelableArrayListExtra(RouteSearchTask.SER_KEY, routes);
+            startActivity(intent);
+        }
+        else {
+            String message = "Please try again.";
+            Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+        }
     }
 }
