@@ -7,6 +7,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.text.format.DateFormat;
@@ -27,6 +28,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.devglyph.reitittaja.R;
+import com.devglyph.reitittaja.activities.MainActivity;
 import com.devglyph.reitittaja.activities.RouteListActivity;
 import com.devglyph.reitittaja.adapters.PlacesAutoCompleteAdapter;
 import com.devglyph.reitittaja.models.Location;
@@ -73,6 +75,7 @@ public class JourneyPlannerFragment extends Fragment
     private ArrayList<Location> locationList = new ArrayList<>();
 
     private boolean mDeparture = true;
+
     private boolean[] mTransportationModeStates = new boolean[8];
     private static final int MODE_BUS = 0;
     private static final int MODE_TRAIN = 1;
@@ -101,6 +104,9 @@ public class JourneyPlannerFragment extends Fragment
     private View mView;
 
     private ArrayList<Route> routes;
+
+    private RadioGroup departureGroup;
+    private CheckBox busBox, trainBox, metroBox, tramBox, ulineBox, serviceBox, walkingBox, cyclingBox;
 
     /**
      * Use this factory method to create a new instance of
@@ -136,31 +142,31 @@ public class JourneyPlannerFragment extends Fragment
         // Inflate the layout for this fragment
         mView = inflater.inflate(R.layout.fragment_journey_planner, container, false);
 
-        RadioGroup group = (RadioGroup) mView.findViewById(R.id.radioGroupArrivalDeparture);
-        createRadioButtonChangeListener(group);
+        departureGroup = (RadioGroup) mView.findViewById(R.id.radioGroupArrivalDeparture);
+        createRadioButtonChangeListener(departureGroup);
 
-        CheckBox box = (CheckBox) mView.findViewById(R.id.checkBoxBus);
-        createCheckBoxChangeListener(box);
-        box.setChecked(true);
-        box = (CheckBox) mView.findViewById(R.id.checkBoxTrain);
-        createCheckBoxChangeListener(box);
-        box.setChecked(true);
-        box = (CheckBox) mView.findViewById(R.id.checkBoxMetro);
-        createCheckBoxChangeListener(box);
-        box.setChecked(true);
-        box = (CheckBox) mView.findViewById(R.id.checkBoxTram);
-        createCheckBoxChangeListener(box);
-        box.setChecked(true);
-        box = (CheckBox) mView.findViewById(R.id.checkBoxUline);
-        createCheckBoxChangeListener(box);
-        box.setChecked(true);
-        box = (CheckBox) mView.findViewById(R.id.checkBoxService);
-        createCheckBoxChangeListener(box);
-        box.setChecked(true);
-        box = (CheckBox) mView.findViewById(R.id.checkBoxOnlyWalking);
-        createCheckBoxChangeListener(box);
-        box = (CheckBox) mView.findViewById(R.id.checkBoxOnlyCycling);
-        createCheckBoxChangeListener(box);
+        busBox = (CheckBox) mView.findViewById(R.id.checkBoxBus);
+        createCheckBoxChangeListener(busBox);
+        busBox.setChecked(true);
+        trainBox = (CheckBox) mView.findViewById(R.id.checkBoxTrain);
+        createCheckBoxChangeListener(trainBox);
+        trainBox.setChecked(true);
+        metroBox = (CheckBox) mView.findViewById(R.id.checkBoxMetro);
+        createCheckBoxChangeListener(metroBox);
+        metroBox.setChecked(true);
+        tramBox = (CheckBox) mView.findViewById(R.id.checkBoxTram);
+        createCheckBoxChangeListener(tramBox);
+        tramBox.setChecked(true);
+        ulineBox = (CheckBox) mView.findViewById(R.id.checkBoxUline);
+        createCheckBoxChangeListener(ulineBox);
+        ulineBox.setChecked(true);
+        serviceBox = (CheckBox) mView.findViewById(R.id.checkBoxService);
+        createCheckBoxChangeListener(serviceBox);
+        serviceBox.setChecked(true);
+        walkingBox = (CheckBox) mView.findViewById(R.id.checkBoxOnlyWalking);
+        createCheckBoxChangeListener(walkingBox);
+        cyclingBox = (CheckBox) mView.findViewById(R.id.checkBoxOnlyCycling);
+        createCheckBoxChangeListener(cyclingBox);
 
         Button searchButton = (Button) mView.findViewById(R.id.button_search);
         createSearchButtonClickListener(searchButton);
@@ -180,6 +186,8 @@ public class JourneyPlannerFragment extends Fragment
         mEndPlace = (AutoCompleteTextView) mView.findViewById(R.id.end_place);
         mEndPlace.setAdapter(new PlacesAutoCompleteAdapter(this, getActivity(), R.layout.list_item));
         createOnItemClickListener(mEndPlace);
+
+        Log.d(LOG_TAG, "onCreateView");
 
         return mView;
     }
@@ -452,9 +460,7 @@ public class JourneyPlannerFragment extends Fragment
     }
 
     private String getTimeParameter() {
-        String time;
         Calendar cal;
-        SimpleDateFormat simpleDateFormat;
 
         //if the date parameter has not been changed from "now", then use the current time
         if (mMinutes == -1 || mHours == -1) {
@@ -468,8 +474,8 @@ public class JourneyPlannerFragment extends Fragment
 
         //format the time to hhmm
         Date dTime = cal.getTime();
-        simpleDateFormat = new SimpleDateFormat("HHmm");
-        time = simpleDateFormat.format(dTime);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HHmm");
+        String time = simpleDateFormat.format(dTime);
 
         Log.d(LOG_TAG, "time set "+time);
 
@@ -639,6 +645,9 @@ public class JourneyPlannerFragment extends Fragment
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        ((MainActivity) activity).onSectionAttached(
+                getArguments().getInt(ARG_PARAM1));
+
         try {
             mListener = (OnFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
@@ -708,5 +717,37 @@ public class JourneyPlannerFragment extends Fragment
             String message = "Please try again.";
             Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
         }
+    }
+
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        Log.d(LOG_TAG, "onActivityCreated");
+
+        if (savedInstanceState != null) {
+            mHours = savedInstanceState.getInt("hours");
+            mMinutes = savedInstanceState.getInt("minutes");
+            mYear = savedInstanceState.getInt("years");
+            mMonth = savedInstanceState.getInt("months");
+            mDay = savedInstanceState.getInt("days");
+
+            setTimeButtonTime(mHours, mMinutes);
+            setDateButtonDate(mYear, mMonth, mDay);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        Log.d(LOG_TAG, "onSaveInstanceState");
+
+        outState.putInt("minutes", mMinutes);
+        outState.putInt("hours", mHours);
+        outState.putInt("days", mDay);
+        outState.putInt("months", mMonth - 1);
+        outState.putInt("years", mYear);
     }
 }

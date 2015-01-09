@@ -50,29 +50,31 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     @Override
-    public void onNavigationDrawerItemSelected(int position) {
+    public void onNavigationDrawerItemSelected(int position, boolean fromSavedInstanceState) {
         // update the main content by replacing fragments
-        Fragment fragment = null;
+        if (!fromSavedInstanceState) {
+            Fragment fragment = null;
 
-        if (position == 0) {
-            fragment = JourneyPlannerFragment.newInstance(position + 1);
+            if (position == 0) {
+                fragment = JourneyPlannerFragment.newInstance(position + 1);
+            }
+            else if (position == 1) {
+                fragment = PlaceholderFragment.newInstance(position + 1);
+            }
+            else if (position == 2) {
+                fragment = PlaceholderFragment.newInstance(position + 1);
+            }
+            else if (position == 3) {
+                fragment = PlaceholderFragment.newInstance(position + 1);
+            }
+            else {
+                return;
+            }
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, fragment)
+                    .commit();
         }
-        else if (position == 1) {
-            fragment = PlaceholderFragment.newInstance(position + 1);
-        }
-        else if (position == 2) {
-            fragment = PlaceholderFragment.newInstance(position + 1);
-        }
-        else if (position == 3) {
-            fragment = PlaceholderFragment.newInstance(position + 1);
-        }
-        else {
-            return;
-        }
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, fragment)
-                .commit();
     }
 
     public void onSectionAttached(int number) {
@@ -165,6 +167,7 @@ public class MainActivity extends ActionBarActivity implements
         @Override
         public void onAttach(Activity activity) {
             super.onAttach(activity);
+
             ((MainActivity) activity).onSectionAttached(
                     getArguments().getInt(ARG_SECTION_NUMBER));
         }

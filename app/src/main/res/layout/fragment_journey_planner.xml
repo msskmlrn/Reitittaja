@@ -172,7 +172,7 @@
                     android:id="@+id/checkBoxOnlyCycling"
                     android:layout_toRightOf="@+id/checkBoxOnlyWalking"
                     android:layout_below="@+id/checkBoxUline" />
-                </RelativeLayout>
+            </RelativeLayout>
 
             <LinearLayout
                 android:layout_width="fill_parent"
@@ -187,7 +187,6 @@
                     android:layout_weight="1"
                     android:layout_gravity="right|center_vertical"
                     android:text="@string/journey_planner_search" />
-
             </LinearLayout>
 
         </LinearLayout>
