@@ -1,5 +1,6 @@
 package com.devglyph.reitittaja.network;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -31,6 +32,7 @@ public class LocationSearchTask extends AsyncTask<ArrayList<Route>, Void, ArrayL
 
     private ArrayList<Route> routes;
     private Context mContext;
+    private ProgressDialog pDialog;
     private OnLocationSearchCompleted onLocationSearchCompleted;
 
     public interface OnLocationSearchCompleted{
@@ -40,6 +42,13 @@ public class LocationSearchTask extends AsyncTask<ArrayList<Route>, Void, ArrayL
     public LocationSearchTask(Context context, OnLocationSearchCompleted onLocationSearchCompleted) {
         this.onLocationSearchCompleted = onLocationSearchCompleted;
         this.mContext = context;
+    }
+
+    @Override
+    protected void onPreExecute() {
+        pDialog = new ProgressDialog(mContext);
+        pDialog.setMessage("Filling in missing details");
+        pDialog.show();
     }
 
     /**
@@ -144,6 +153,11 @@ public class LocationSearchTask extends AsyncTask<ArrayList<Route>, Void, ArrayL
     @Override
     protected void onPostExecute(ArrayList<Route> routes) {
         super.onPostExecute(routes);
+
+        //dismiss the wait dialog
+        if (pDialog != null && pDialog.isShowing()) {
+            pDialog.dismiss();
+        }
 
         onLocationSearchCompleted.onLocationSearchTaskCompleted(routes);
     }
