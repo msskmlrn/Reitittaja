@@ -31,6 +31,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.RouteListActivity" />
         </activity>
+
+        <service
+            android:name=".services.RouteSearchService"
+            android:exported="false" >
+        </service>
+        <service
+            android:name=".services.ReverseGeocodeService"
+            android:exported="false" >
+        </service>
     </application>
 
 </manifest>

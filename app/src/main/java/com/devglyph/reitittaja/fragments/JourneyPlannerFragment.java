@@ -3,13 +3,17 @@ package com.devglyph.reitittaja.fragments;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -33,8 +37,8 @@ import com.devglyph.reitittaja.activities.RouteListActivity;
 import com.devglyph.reitittaja.adapters.PlacesAutoCompleteAdapter;
 import com.devglyph.reitittaja.models.Location;
 import com.devglyph.reitittaja.models.Route;
-import com.devglyph.reitittaja.network.LocationSearchTask;
-import com.devglyph.reitittaja.network.RouteSearchTask;
+import com.devglyph.reitittaja.services.ReverseGeocodeService;
+import com.devglyph.reitittaja.services.RouteSearchService;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -57,9 +61,7 @@ import java.util.List;
  * Use the {@link JourneyPlannerFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class JourneyPlannerFragment extends Fragment
-        implements RouteSearchTask.OnRouteSearchCompleted,
-        LocationSearchTask.OnLocationSearchCompleted {
+public class JourneyPlannerFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -108,6 +110,11 @@ public class JourneyPlannerFragment extends Fragment
     private RadioGroup departureGroup;
     private CheckBox busBox, trainBox, metroBox, tramBox, ulineBox, serviceBox, walkingBox, cyclingBox;
 
+    public  final static String SER_KEY = "com.devglyph.routes";
+
+    //TODO handle progress dialog when the orientation changes
+    private ProgressDialog progressDialog;
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -130,9 +137,35 @@ public class JourneyPlannerFragment extends Fragment
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.d(LOG_TAG, "onCreate");
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mParam1 = getArguments().getInt(ARG_PARAM1);
+        }
+
+        IntentFilter routeSearchFilter = new IntentFilter();
+        routeSearchFilter.addAction(RouteSearchService.ROUTE_SEARCH_DONE);
+
+        IntentFilter reverseGeocodeFilter = new IntentFilter();
+        reverseGeocodeFilter.addAction(ReverseGeocodeService.REVERSE_GEOCODING_DONE);
+
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(routeSearchReceiver,
+                routeSearchFilter);
+
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(reverseGeocodeReceiver,
+                reverseGeocodeFilter);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        Log.d(LOG_TAG, "onStop");
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(routeSearchReceiver);
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(reverseGeocodeReceiver);
+
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
         }
     }
 
@@ -413,10 +446,13 @@ public class JourneyPlannerFragment extends Fragment
 
         try {
             URL url = new URL(QUERY_BASE_URL + paramString);
-            Log.d(LOG_TAG, "launching async task "+url);
+            Log.d(LOG_TAG, "launching route search "+url);
 
-            RouteSearchTask task = new RouteSearchTask(getActivity(), this);
-            task.execute(url);
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage("Searching routes");
+            progressDialog.show();
+
+            RouteSearchService.startRouteSearch(getActivity(), url.toString());
         }
         catch (MalformedURLException ex) {
             ex.printStackTrace();
@@ -685,41 +721,6 @@ public class JourneyPlannerFragment extends Fragment
         this.locationList = locationList;
     }
 
-    /**
-     * Called when the route search task finishes
-     * @param routes
-     */
-    @Override
-    public void onRouteSearchTaskCompleted(ArrayList<Route> routes) {
-        //launch the location search task to fill in the missing location information
-        LocationSearchTask task = new LocationSearchTask(getActivity(), this);
-        task.execute(routes);
-    }
-
-    /**
-     * Called when the location search task finishes
-     * @param routes
-     */
-    @Override
-    public void onLocationSearchTaskCompleted(ArrayList<Route> routes) {
-        this.routes = routes;
-        Log.d(LOG_TAG, "startRoutesActivity called");
-
-        //launch an activity to show the routes if any routes were found
-        if (routes != null && !routes.isEmpty()) {
-            Intent intent = new Intent(getActivity(), RouteListActivity.class);
-
-            //add the routes to the intent as extras
-            intent.putParcelableArrayListExtra(RouteSearchTask.SER_KEY, routes);
-            startActivity(intent);
-        }
-        else {
-            String message = "Please try again.";
-            Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -733,9 +734,38 @@ public class JourneyPlannerFragment extends Fragment
             mMonth = savedInstanceState.getInt("months");
             mDay = savedInstanceState.getInt("days");
 
-            setTimeButtonTime(mHours, mMinutes);
-            setDateButtonDate(mYear, mMonth, mDay);
+            if (compareCurrentTimeToGivenTime(mMinutes, mHours)) {
+                setTimeButtonTime(mHours, mMinutes);
+            }
+            if (compareCurrentDateToGivenDate(mDay, mMonth, mYear)) {
+                setDateButtonDate(mYear, mMonth, mDay);
+            }
         }
+    }
+
+    private boolean compareCurrentTimeToGivenTime(int minutes, int hours) {
+        Calendar cal = Calendar.getInstance();
+        int currentHours = cal.get(Calendar.HOUR_OF_DAY);
+        int currentMinutes = cal.get(Calendar.MINUTE);
+
+        if (hours == currentHours && minutes == currentMinutes) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean compareCurrentDateToGivenDate(int days, int months, int years) {
+        Calendar cal = Calendar.getInstance();
+        int currentDays = cal.get(Calendar.DATE);
+        int currentMonths = cal.get(Calendar.MONTH);
+        int currentYears = cal.get(Calendar.YEAR);
+
+        if (currentDays == days && currentMonths == months && currentYears == years) {
+            return true;
+        }
+
+        return false;
     }
 
     @Override
@@ -750,4 +780,52 @@ public class JourneyPlannerFragment extends Fragment
         outState.putInt("months", mMonth - 1);
         outState.putInt("years", mYear);
     }
+
+    private BroadcastReceiver routeSearchReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(LOG_TAG, "routeSearchReceiver");
+
+            if (intent != null && intent.hasExtra("routes")) {
+                Log.d(LOG_TAG, "routeSearchReceiver, found routes");
+
+                routes = intent.getParcelableArrayListExtra("routes");
+
+                ReverseGeocodeService.startReverseGeocoding(getActivity(), routes);
+            }
+        }
+    };
+
+
+    private BroadcastReceiver reverseGeocodeReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(LOG_TAG, "reverseGeocodeReceiver");
+
+            if (intent != null && intent.hasExtra(ReverseGeocodeService.REVERSE_GEOCODED_ROUTES_EXTRA)) {
+                Log.d(LOG_TAG, "reverseGeocodeReceiver, found routes");
+
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+
+                routes = intent.getParcelableArrayListExtra(ReverseGeocodeService.REVERSE_GEOCODED_ROUTES_EXTRA);
+
+                //launch an activity to show the routes if any routes were found
+                if (routes != null && !routes.isEmpty()) {
+                    Intent launchIntent = new Intent(getActivity(), RouteListActivity.class);
+
+                    //add the routes to the intent as extras
+                    launchIntent.putParcelableArrayListExtra(RouteSearchService.SER_KEY, routes);
+                    startActivity(launchIntent);
+                }
+                else {
+                    String message = "Please try again.";
+                    Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    };
 }

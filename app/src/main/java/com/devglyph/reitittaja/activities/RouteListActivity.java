@@ -5,12 +5,13 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
 import com.devglyph.reitittaja.R;
+import com.devglyph.reitittaja.fragments.JourneyPlannerFragment;
 import com.devglyph.reitittaja.fragments.RouteDetailFragment;
 import com.devglyph.reitittaja.fragments.RouteListFragment;
 import com.devglyph.reitittaja.models.Route;
-import com.devglyph.reitittaja.network.RouteSearchTask;
 
 import java.util.ArrayList;
+
 
 
 /**
@@ -48,7 +49,7 @@ public class RouteListActivity extends FragmentActivity
         Intent intent = getIntent();
 
         //get the route info from the extras
-        routes = intent.getParcelableArrayListExtra(RouteSearchTask.SER_KEY);
+        routes = intent.getParcelableArrayListExtra(JourneyPlannerFragment.SER_KEY);
 
         String startPlace = routes.get(0).getStartLocation().getName();
         String endPlace = routes.get(0).getEndLocation().getName();

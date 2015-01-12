@@ -1,8 +1,9 @@
-package com.devglyph.reitittaja.network;
+package com.devglyph.reitittaja.services;
 
-import android.app.ProgressDialog;
+import android.app.IntentService;
 import android.content.Context;
-import android.os.AsyncTask;
+import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.devglyph.reitittaja.R;
@@ -11,6 +12,7 @@ import com.devglyph.reitittaja.models.Location;
 import com.devglyph.reitittaja.models.Route;
 import com.devglyph.reitittaja.models.RouteLeg;
 import com.devglyph.reitittaja.models.RouteLocation;
+import com.devglyph.reitittaja.network.LocationJsonParserUtil;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -26,40 +28,52 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LocationSearchTask extends AsyncTask<ArrayList<Route>, Void, ArrayList<Route>> {
+/**
+ * An {@link IntentService} subclass for handling asynchronous task requests in
+ * a service on a separate handler thread.
+ * <p/>
+ */
+public class ReverseGeocodeService extends IntentService {
+    private static final String ACTION_REVERSE_GEOCODE = "com.devglyph.reitittaja.services.action.REVERSE_GEOCODE_SEARCH";
+    public static final String REVERSE_GEOCODED_ROUTES_EXTRA = "com.devglyph.reitittaja.services.extra.reverse_geocoded_routes";
+    public static final String REVERSE_GEOCODING_DONE = "com.devglyph.reitittaja.REVERSE_GEOCODING_DONE";
 
-    private final String LOG_TAG = LocationSearchTask.class.getSimpleName();
+    private final String LOG_TAG = ReverseGeocodeService.class.getSimpleName();
 
-    private ArrayList<Route> routes;
-    private Context mContext;
-    private ProgressDialog pDialog;
-    private OnLocationSearchCompleted onLocationSearchCompleted;
-
-    public interface OnLocationSearchCompleted{
-        void onLocationSearchTaskCompleted(ArrayList<Route> routes);
+    /**
+     * Starts this service to perform reverse geocode search with the given parameters. If
+     * the service is already performing a task this action will be queued.
+     *
+     * @see IntentService
+     */
+    public static void startReverseGeocoding(Context context, ArrayList<Route> routes) {
+        Log.d("com.devglyph.reitittaja.services.action.REVERSE_GEOCODE_SEARCH", "startReverseGeocoding");
+        Intent intent = new Intent(context, ReverseGeocodeService.class);
+        intent.setAction(ACTION_REVERSE_GEOCODE);
+        intent.putParcelableArrayListExtra(REVERSE_GEOCODED_ROUTES_EXTRA, routes);
+        context.startService(intent);
     }
 
-    public LocationSearchTask(Context context, OnLocationSearchCompleted onLocationSearchCompleted) {
-        this.onLocationSearchCompleted = onLocationSearchCompleted;
-        this.mContext = context;
+    public ReverseGeocodeService() {
+        super("ReverseGeocodeService");
     }
 
     @Override
-    protected void onPreExecute() {
-        pDialog = new ProgressDialog(mContext);
-        pDialog.setMessage("Filling in missing details");
-        pDialog.show();
+    protected void onHandleIntent(Intent intent) {
+        if (intent != null) {
+            final String action = intent.getAction();
+            if (ACTION_REVERSE_GEOCODE.equals(action)) {
+                final ArrayList<Route> routes = intent.getParcelableArrayListExtra(REVERSE_GEOCODED_ROUTES_EXTRA);
+                handleReverseGeocodeAction(routes);
+            }
+        }
     }
 
     /**
-     * Fill in missing location information
-     * @param params
-     * @return list of routes with location information
+     * Handle the reverse geocode action in the provided background thread with the provided
+     * parameters.
      */
-    @Override
-    protected ArrayList<Route> doInBackground(ArrayList<Route>... params) {
-        routes = params[0];
-
+    private void handleReverseGeocodeAction(ArrayList<Route> routes) {
         //go through the routes
         for (int i = 0; i < routes.size(); i++) {
             Route route = routes.get(i);
@@ -78,8 +92,13 @@ public class LocationSearchTask extends AsyncTask<ArrayList<Route>, Void, ArrayL
             }
         }
 
+        notifyFinished(routes);
+    }
 
-        return routes;
+    private void notifyFinished(ArrayList<Route> routes) {
+        Intent intent = new Intent(REVERSE_GEOCODING_DONE);
+        intent.putParcelableArrayListExtra(REVERSE_GEOCODED_ROUTES_EXTRA, routes);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     private Location getLocation(Coordinates coordinates) {
@@ -150,18 +169,6 @@ public class LocationSearchTask extends AsyncTask<ArrayList<Route>, Void, ArrayL
         return null;
     }
 
-    @Override
-    protected void onPostExecute(ArrayList<Route> routes) {
-        super.onPostExecute(routes);
-
-        //dismiss the wait dialog
-        if (pDialog != null && pDialog.isShowing()) {
-            pDialog.dismiss();
-        }
-
-        onLocationSearchCompleted.onLocationSearchTaskCompleted(routes);
-    }
-
     private URL prepareUrl(Coordinates coordinates) {
         final String QUERY_BASE_URL =
                 "http://api.reittiopas.fi/hsl/prod/?";
@@ -177,8 +184,8 @@ public class LocationSearchTask extends AsyncTask<ArrayList<Route>, Void, ArrayL
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
         nameValuePairs.add(new BasicNameValuePair(QUERY_PARAM, "reverse_geocode"));
         nameValuePairs.add(new BasicNameValuePair(FORMAT_PARAM, "json"));
-        nameValuePairs.add(new BasicNameValuePair(USERNAME_PARAM, mContext.getString(R.string.reittiopas_username)));
-        nameValuePairs.add(new BasicNameValuePair(PASSWORD_PARAM, mContext.getString(R.string.reittiopas_password)));
+        nameValuePairs.add(new BasicNameValuePair(USERNAME_PARAM, getString(R.string.reittiopas_username)));
+        nameValuePairs.add(new BasicNameValuePair(PASSWORD_PARAM, getString(R.string.reittiopas_password)));
         nameValuePairs.add(new BasicNameValuePair(COORDINATE_OUTPUT_PARAM, "wgs84"));
         nameValuePairs.add(new BasicNameValuePair(COORDINATE_INPUT_PARAM, "wgs84"));
 

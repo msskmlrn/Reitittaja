@@ -1,8 +1,9 @@
-package com.devglyph.reitittaja.network;
+package com.devglyph.reitittaja.services;
 
-import android.app.ProgressDialog;
+import android.app.IntentService;
 import android.content.Context;
-import android.os.AsyncTask;
+import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.devglyph.reitittaja.Util;
@@ -23,38 +24,61 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
+/**
+ * An {@link IntentService} subclass for handling asynchronous task requests in
+ * a service on a separate handler thread.
+ * <p/>
+ */
+public class RouteSearchService extends IntentService {
+    private static final String ACTION_ROUTE_SEARCH = "com.devglyph.reitittaja.services.action.ROUTE_SEARCH";
+    public static final String URL_EXTRA = "com.devglyph.reitittaja.services.extra.URL";
+    public static final String ROUTE_SEARCH_DONE = "com.devglyph.reitittaja.ROUTE_SEARCH_DONE";
 
-    private final String LOG_TAG = RouteSearchTask.class.getSimpleName();
+    private final String LOG_TAG = RouteSearchService.class.getSimpleName();
 
     public  final static String SER_KEY = "com.devglyph.routes";
 
     private Context mContext;
-    private ProgressDialog pDialog;
-    private OnRouteSearchCompleted onRouteSearchCompleted;
 
-
-    public interface OnRouteSearchCompleted{
-        void onRouteSearchTaskCompleted(ArrayList<Route> routes);
+    /**
+     * Starts this service to perform action Foo with the given parameters. If
+     * the service is already performing a task this action will be queued.
+     *
+     * @see IntentService
+     */
+    public static void startRouteSearch(Context context, String urlParam) {
+        Log.d("com.devglyph.reitittaja.ROUTE_SEARCH", "startRouteSearch");
+        Intent intent = new Intent(context, RouteSearchService.class);
+        intent.setAction(ACTION_ROUTE_SEARCH);
+        intent.putExtra(URL_EXTRA, urlParam);
+        context.startService(intent);
     }
 
-    public RouteSearchTask(Context context, OnRouteSearchCompleted onRouteSearchCompleted) {
-        this.onRouteSearchCompleted = onRouteSearchCompleted;
-        this.mContext = context;
+    public RouteSearchService() {
+        super("RouteSearchService");
     }
 
     @Override
-    protected void onPreExecute() {
-        pDialog = new ProgressDialog(mContext);
-        pDialog.setMessage("Searching routes");
-        pDialog.show();
+    protected void onHandleIntent(Intent intent) {
+        Log.d(LOG_TAG, "onHandleIntent");
+        if (intent != null) {
+            final String action = intent.getAction();
+            if (ACTION_ROUTE_SEARCH.equals(action)) {
+                Log.d(LOG_TAG, "if (ACTION_ROUTE_SEARCH.equals(action)) {");
+
+                final String url = intent.getStringExtra(URL_EXTRA);
+                handleActionFoo(url);
+            }
+        }
     }
 
-    @Override
-    protected ArrayList<Route> doInBackground(URL... params) {
-
-        if (params.length == 0) {
-            return null;
+    /**
+     * Handle the route search action in the provided background thread with the provided
+     * parameter.
+     */
+    private void handleActionFoo(String urlParam) {
+        if (urlParam == null) {
+            return;
         }
 
         HttpURLConnection urlConnection = null;
@@ -64,7 +88,7 @@ public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
         String routesJsonStr = null;
 
         try {
-            URL url = params[0];
+            URL url = new URL(urlParam);
 
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
@@ -75,7 +99,7 @@ public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {
                 // Nothing to do.
-                return null;
+                return;
             }
             reader = new BufferedReader(new InputStreamReader(inputStream));
 
@@ -89,7 +113,7 @@ public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
 
             if (buffer.length() == 0) {
                 // Stream was empty.  No point in parsing.
-                return null;
+                return;
             }
             routesJsonStr = buffer.toString();
             Log.d(LOG_TAG, "routes " + routesJsonStr);
@@ -97,7 +121,7 @@ public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
             Log.e(LOG_TAG, "Error ", e);
             // If the code didn't successfully get the weather data, there's no point in attempting
             // to parse it.
-            return null;
+            return;
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -111,21 +135,14 @@ public class RouteSearchTask extends AsyncTask<URL, Void, ArrayList<Route>> {
             }
         }
 
-        return getRoutesFromJson(routesJsonStr);
+        ArrayList<Route> routes = getRoutesFromJson(routesJsonStr);
+        notifyFinished(routes);
     }
 
-    @Override
-    protected void onPostExecute(ArrayList<Route> routes) {
-        super.onPostExecute(routes);
-
-        //dismiss the wait dialog
-        if (pDialog != null && pDialog.isShowing()) {
-            pDialog.dismiss();
-        }
-
-        onRouteSearchCompleted.onRouteSearchTaskCompleted(routes);
-
-        Log.d(LOG_TAG, "onPostExecute");
+    private void notifyFinished(ArrayList<Route> routes) {
+        Intent intent = new Intent(ROUTE_SEARCH_DONE);
+        intent.putParcelableArrayListExtra("routes", routes);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     private ArrayList<Route> getRoutesFromJson(String json) {
