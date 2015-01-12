@@ -103,6 +103,9 @@ public class JourneyPlannerFragment extends Fragment {
     private Location startLocation;
     private Location endLocation;
 
+    private String startLocationName;
+    private String endLocationName;
+
     private View mView;
 
     private ArrayList<Route> routes;
@@ -740,6 +743,11 @@ public class JourneyPlannerFragment extends Fragment {
             if (compareCurrentDateToGivenDate(mDay, mMonth, mYear)) {
                 setDateButtonDate(mYear, mMonth, mDay);
             }
+
+            startLocation = savedInstanceState.getParcelable("startLocation");
+            endLocation = savedInstanceState.getParcelable("endLocation");
+            startLocationName = savedInstanceState.getString("startLocationName");
+            endLocationName = savedInstanceState.getString("endLocationName");
         }
     }
 
@@ -779,6 +787,10 @@ public class JourneyPlannerFragment extends Fragment {
         outState.putInt("days", mDay);
         outState.putInt("months", mMonth - 1);
         outState.putInt("years", mYear);
+        outState.putParcelable("startLocation", startLocation);
+        outState.putParcelable("endLocation", endLocation);
+        outState.putString("startLocationName", mStartPlace.getText().toString());
+        outState.putString("endLocationName", mEndPlace.getText().toString());
     }
 
     private BroadcastReceiver routeSearchReceiver = new BroadcastReceiver() {
@@ -796,7 +808,6 @@ public class JourneyPlannerFragment extends Fragment {
             }
         }
     };
-
 
     private BroadcastReceiver reverseGeocodeReceiver = new BroadcastReceiver() {
 
@@ -828,4 +839,12 @@ public class JourneyPlannerFragment extends Fragment {
             }
         }
     };
+
+    public String getStartLocationName() {
+        return startLocationName;
+    }
+
+    public String getEndLocationName() {
+        return endLocationName;
+    }
 }

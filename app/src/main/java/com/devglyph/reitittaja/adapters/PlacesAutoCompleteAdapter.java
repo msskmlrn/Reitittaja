@@ -6,10 +6,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 
-import com.devglyph.reitittaja.network.LocationJsonParserUtil;
 import com.devglyph.reitittaja.R;
 import com.devglyph.reitittaja.fragments.JourneyPlannerFragment;
 import com.devglyph.reitittaja.models.Location;
+import com.devglyph.reitittaja.network.LocationJsonParserUtil;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -33,6 +33,8 @@ public class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements F
 
     public PlacesAutoCompleteAdapter(JourneyPlannerFragment journeyPlannerFragment, Context context, int textViewResourceId) {
         super(context, textViewResourceId);
+        Log.d(LOG_TAG, "constructor");
+
         this.journeyPlannerFragment = journeyPlannerFragment;
         this.mContext = context;
     }
@@ -49,20 +51,39 @@ public class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements F
 
     @Override
     public Filter getFilter() {
+        Log.d(LOG_TAG, "getFilter");
         Filter filter = new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
+                Log.d(LOG_TAG, "performFiltering");
+
                 FilterResults filterResults = new FilterResults();
                 if (constraint != null) {
                     // Retrieve the autocomplete results.
                     Log.d(LOG_TAG, "Charconstraintsequence " + constraint);
-                    ArrayList<String> tempList = autocomplete(constraint.toString());
-                    if (tempList != null && !tempList.isEmpty()) {
-                        resultList = tempList;
 
-                        // Assign the data to the FilterResults
-                        filterResults.values = resultList;
-                        filterResults.count = resultList.size();
+                    //if the text in the search field matches the previously selected value, then there
+                    //is no need to perform the search again, For example, if the start location
+                    //has been chosen from the results and then the screen is rotated that
+                    //causes the adapter to called again with the chosen value which is unneeded.
+                    if (journeyPlannerFragment.getStartLocationName() != null &&
+                            constraint.toString().equals(journeyPlannerFragment.getStartLocationName())) {
+                        return filterResults;
+                    }
+                    else if (journeyPlannerFragment.getEndLocationName() != null &&
+                            constraint.toString().equals(journeyPlannerFragment.getEndLocationName())) {
+                        return filterResults;
+                    }
+                    //perform the search
+                    else {
+                        ArrayList<String> tempList = autocomplete(constraint.toString());
+                        if (tempList != null && !tempList.isEmpty()) {
+                            resultList = tempList;
+
+                            // Assign the data to the FilterResults
+                            filterResults.values = resultList;
+                            filterResults.count = resultList.size();
+                        }
                     }
                 }
                 return filterResults;
@@ -70,6 +91,7 @@ public class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements F
 
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
+                Log.d(LOG_TAG, "publishResults");
                 if (results != null && results.count > 0) {
                     notifyDataSetChanged();
                 }
@@ -140,7 +162,7 @@ public class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements F
             Log.d(LOG_TAG, resultString);
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
-            // If the code didn't successfully get the weather data, there's no point in attempting
+            // If the code didn't successfully get the data, there's no point in attempting
             // to parse it.
             return null;
         } finally {
@@ -157,7 +179,6 @@ public class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements F
         }
 
         ArrayList<Location> locationList = new LocationJsonParserUtil().getPlacesFromJson(resultString);
-        //ArrayList<Location> locationList = getPlacesFromJson(resultString);
 
         //pass the location list to the fragment
         journeyPlannerFragment.setLocationList(locationList);
