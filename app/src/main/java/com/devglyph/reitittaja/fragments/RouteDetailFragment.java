@@ -1,18 +1,22 @@
 package com.devglyph.reitittaja.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import com.devglyph.reitittaja.R;
 import com.devglyph.reitittaja.Util;
+import com.devglyph.reitittaja.activities.MapsActivity;
 import com.devglyph.reitittaja.models.Route;
 import com.devglyph.reitittaja.models.RouteLeg;
 
@@ -31,6 +35,7 @@ public class RouteDetailFragment extends Fragment {
      * represents.
      */
     public  final static String ROUTE_DETAIL_KEY = "com.devglyph.route_details";
+    private final String LOG_TAG = RouteDetailFragment.class.getSimpleName();
 
     //the route whose details are to be shown
     private Route mRoute;
@@ -40,6 +45,7 @@ public class RouteDetailFragment extends Fragment {
     private TextView startTime, startPlace, endTime, endPlace, totalTime, tripDistance;
     private SimpleAdapter mAdapter;
     private Handler mHandler;
+    private ListView mView;
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -91,16 +97,39 @@ public class RouteDetailFragment extends Fragment {
                         R.id.text_leg_distance, R.id.text_leg_duration});
 
 
-        ListView listView = (ListView) rootView.findViewById(R.id.listview);
-        listView.setAdapter(mAdapter);
+        mView = (ListView) rootView.findViewById(R.id.listview);
+        mView.setAdapter(mAdapter);
+
+        addOnItemClickListeners();
 
         return rootView;
     }
+
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         //updateAdapter();
+    }
+
+    /**
+     * Add onGroupClickListeners to trips
+     */
+    private void addOnItemClickListeners() {
+        mView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d(LOG_TAG, "onItemClick, position "+position);
+                startMaps(position);
+            }
+        });
+    }
+
+    private void startMaps(int position) {
+        Intent intent = new Intent(getActivity(), MapsActivity.class);
+        intent.putExtra("route", mRoute);
+        intent.putExtra("leg", position);
+        startActivity(intent);
     }
 
     /**

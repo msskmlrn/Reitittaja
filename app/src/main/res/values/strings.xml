@@ -37,5 +37,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="title_route_list">Routes</string>
     <string name="title_route_detail">Route Detail</string>
+    <string name="title_activity_maps">Map</string>
 
 </resources>
