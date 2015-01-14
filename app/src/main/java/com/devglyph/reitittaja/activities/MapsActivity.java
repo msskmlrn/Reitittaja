@@ -1,10 +1,12 @@
 package com.devglyph.reitittaja.activities;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
 import com.devglyph.reitittaja.R;
+import com.devglyph.reitittaja.Util;
 import com.devglyph.reitittaja.models.Coordinates;
 import com.devglyph.reitittaja.models.Route;
 import com.devglyph.reitittaja.models.RouteLeg;
@@ -28,6 +30,7 @@ public class MapsActivity extends FragmentActivity {
     private LatLng startLocation;
     private LatLng endLocation;
     private static int counter = 1;
+    private LatLng zoomPoint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,12 +93,16 @@ public class MapsActivity extends FragmentActivity {
     private void setUpMap() {
         if (mRoute != null) {
             createRoutePolyline();
+            zoomPoint = startLocation;
         }
 
         if (mLegPosition != -1) {
-
+            Coordinates point = mRoute.getLegs().get(mLegPosition).getLocations().get(0).getCoordinates();
+            zoomPoint = new LatLng(point.getLatitude(), point.getLongitude());
         }
-        zoomCamera();
+
+        //zoom the camera to either the start of the route or start of the clicked leg
+        zoomCamera(zoomPoint);
     }
 
     private void createRoutePolyline() {
@@ -126,7 +133,7 @@ public class MapsActivity extends FragmentActivity {
         }
 
         //color each leg based on the transportation mode used
-        //options.color();
+        options.color(getModeColor(leg.getType()));
     }
 
     private void markPoints(double startLati, double startLongi, double endLati, double endLongi,
@@ -145,10 +152,34 @@ public class MapsActivity extends FragmentActivity {
     }
 
 
-    private void zoomCamera() {
-        if (startLocation != null) {
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startLocation, 15));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
+    private void zoomCamera(LatLng point) {
+        if (point != null) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point, 15));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
+        }
+    }
+
+    private int getModeColor(int mode) {
+        if (mode == RouteLeg.TRAIN) {
+            return Color.GREEN;
+        }
+        else if (mode == RouteLeg.TRAM) {
+            return Color.YELLOW;
+        }
+        else if (mode == RouteLeg.METRO) {
+            return Color.RED;
+        }
+        else if (mode == RouteLeg.WALK) {
+            return Color.GRAY;
+        }
+        else if (mode == RouteLeg.CYCLE) {
+            return Color.CYAN;
+        }
+        else if (Util.isBusMode(mode)) {
+            return Color.MAGENTA;
+        }
+        else {
+            return Color.BLACK;
         }
     }
 }

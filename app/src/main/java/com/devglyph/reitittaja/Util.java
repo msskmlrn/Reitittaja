@@ -151,4 +151,18 @@ public class Util {
 
         return time;
     }
+
+    public static boolean isBusMode(int mode) {
+        if (mode == RouteLeg.HELSINKI_BUS || mode == RouteLeg.ESPOO_BUS ||
+                mode == RouteLeg.VANTAA_BUS || mode == RouteLeg.REGION_BUS ||
+                mode == RouteLeg.U_LINE_BUS || mode == RouteLeg.HELSINKI_SERVICE_LINE_BUS ||
+                mode == RouteLeg.HELSINKI_NIGHT_BUS || mode == RouteLeg.ESPOO_SERVICE_LINE_BUS ||
+                mode == RouteLeg.VANTAA_SERVICE_LINE_BUS || mode == RouteLeg.REGION_NIGHT_BUS ||
+                mode == RouteLeg.KIRKKONUMMI_BUS || mode == RouteLeg.SIPOO_INTERNAL ||
+                mode == RouteLeg.KERAVA_BUS || mode == RouteLeg.KIRKKONUMMI_BUS) {
+
+            return true;
+        }
+        return false;
+    }
 }
