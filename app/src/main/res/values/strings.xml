@@ -38,5 +38,13 @@
     <string name="title_route_list">Routes</string>
     <string name="title_route_detail">Route Detail</string>
     <string name="title_activity_maps">Map</string>
+    <string name="bus">bus</string>
+    <string name="metro">metro</string>
+    <string name="train">train</string>
+    <string name="tram">tram</string>
+    <string name="uline">uline</string>
+    <string name="service">service</string>
+    <string name="walk">walk</string>
+    <string name="cycle">cycle</string>
 
 </resources>

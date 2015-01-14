@@ -63,36 +63,29 @@ import java.util.List;
  */
 public class JourneyPlannerFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String SECTION_PARAM = "param1";
 
-    // TODO: Rename and change types of parameters
-    private int mParam1;
+    public  final static String SER_KEY = "com.devglyph.routes";
 
     private OnFragmentInteractionListener mListener;
 
     private final String LOG_TAG = JourneyPlannerFragment.class.getSimpleName();
-    private ArrayList<Location> locationList = new ArrayList<>();
 
-    private boolean mDeparture = true;
-
-    private boolean[] mTransportationModeStates = new boolean[8];
-    private static final int MODE_BUS = 0;
-    private static final int MODE_TRAIN = 1;
-    private static final int MODE_METRO = 2;
-    private static final int MODE_TRAM = 3;
-    private static final int MODE_ULINE = 4;
-    private static final int MODE_SERVICE = 5;
-    private static final int MODE_WALKING = 6;
-    private static final int MODE_CYCLING = 7;
+    private View mView;
 
     private Button mTimeButton;
     private Button mDateButton;
 
     private AutoCompleteTextView mStartPlace;
     private AutoCompleteTextView mEndPlace;
+
+    private RadioGroup departureGroup;
+    private CheckBox busBox, trainBox, metroBox, tramBox, ulineBox, serviceBox, walkingBox, cyclingBox;
+
+    //TODO handle progress dialog when the orientation changes
+    private ProgressDialog progressDialog;
+
+    private boolean mDeparture = true;
 
     private int mHours = -1;
     private int mMinutes = -1;
@@ -106,17 +99,8 @@ public class JourneyPlannerFragment extends Fragment {
     private String startLocationName;
     private String endLocationName;
 
-    private View mView;
-
     private ArrayList<Route> routes;
-
-    private RadioGroup departureGroup;
-    private CheckBox busBox, trainBox, metroBox, tramBox, ulineBox, serviceBox, walkingBox, cyclingBox;
-
-    public  final static String SER_KEY = "com.devglyph.routes";
-
-    //TODO handle progress dialog when the orientation changes
-    private ProgressDialog progressDialog;
+    private ArrayList<Location> locationList = new ArrayList<>();
 
     /**
      * Use this factory method to create a new instance of
@@ -129,7 +113,7 @@ public class JourneyPlannerFragment extends Fragment {
     public static JourneyPlannerFragment newInstance(int param1) {
         JourneyPlannerFragment fragment = new JourneyPlannerFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_PARAM1, param1);
+        args.putInt(SECTION_PARAM, param1);
         fragment.setArguments(args);
         return fragment;
     }
@@ -142,10 +126,8 @@ public class JourneyPlannerFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         Log.d(LOG_TAG, "onCreate");
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getInt(ARG_PARAM1);
-        }
 
+        //create intent filters and register receivers
         IntentFilter routeSearchFilter = new IntentFilter();
         routeSearchFilter.addAction(RouteSearchService.ROUTE_SEARCH_DONE);
 
@@ -164,9 +146,12 @@ public class JourneyPlannerFragment extends Fragment {
         super.onStop();
 
         Log.d(LOG_TAG, "onStop");
+
+        //unregister the receiver so that they will not leak
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(routeSearchReceiver);
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(reverseGeocodeReceiver);
 
+        //dismiss the dialog if is still being shown so that it will not leak
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
@@ -181,6 +166,19 @@ public class JourneyPlannerFragment extends Fragment {
         departureGroup = (RadioGroup) mView.findViewById(R.id.radioGroupArrivalDeparture);
         createRadioButtonChangeListener(departureGroup);
 
+        initializeTransportationModeBoxes();
+        initializeButtons();
+        initializeTextFields();
+
+        Log.d(LOG_TAG, "onCreateView");
+
+        return mView;
+    }
+
+    /**
+     * Initialize the transportation mode boxes
+     */
+    private void initializeTransportationModeBoxes() {
         busBox = (CheckBox) mView.findViewById(R.id.checkBoxBus);
         createCheckBoxChangeListener(busBox);
         busBox.setChecked(true);
@@ -203,7 +201,12 @@ public class JourneyPlannerFragment extends Fragment {
         createCheckBoxChangeListener(walkingBox);
         cyclingBox = (CheckBox) mView.findViewById(R.id.checkBoxOnlyCycling);
         createCheckBoxChangeListener(cyclingBox);
+    }
 
+    /**
+     * Initialize the buttons
+     */
+    private void initializeButtons() {
         Button searchButton = (Button) mView.findViewById(R.id.button_search);
         createSearchButtonClickListener(searchButton);
 
@@ -214,7 +217,12 @@ public class JourneyPlannerFragment extends Fragment {
         mDateButton = (Button) mView.findViewById(R.id.whenDateButton);
         createDateButtonClickListener(mDateButton);
         mDateButton.setText(R.string.journey_planner_now_date);
+    }
 
+    /**
+     * Initialize the text fields
+     */
+    private void initializeTextFields() {
         mStartPlace = (AutoCompleteTextView) mView.findViewById(R.id.start_place);
         mStartPlace.setAdapter(new PlacesAutoCompleteAdapter(this, getActivity(), R.layout.list_item));
         createOnItemClickListener(mStartPlace);
@@ -222,12 +230,77 @@ public class JourneyPlannerFragment extends Fragment {
         mEndPlace = (AutoCompleteTextView) mView.findViewById(R.id.end_place);
         mEndPlace.setAdapter(new PlacesAutoCompleteAdapter(this, getActivity(), R.layout.list_item));
         createOnItemClickListener(mEndPlace);
-
-        Log.d(LOG_TAG, "onCreateView");
-
-        return mView;
     }
 
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        ((MainActivity) activity).onSectionAttached(
+                getArguments().getInt(SECTION_PARAM));
+
+        try {
+            mListener = (OnFragmentInteractionListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        Log.d(LOG_TAG, "onActivityCreated");
+
+        if (savedInstanceState != null) {
+            mHours = savedInstanceState.getInt("hours");
+            mMinutes = savedInstanceState.getInt("minutes");
+            mYear = savedInstanceState.getInt("years");
+            mMonth = savedInstanceState.getInt("months");
+            mDay = savedInstanceState.getInt("days");
+
+            //check if the time and date values have to be reset
+            if (compareCurrentTimeToGivenTime(mMinutes, mHours)) {
+                setTimeButtonTime(mHours, mMinutes);
+            }
+            if (compareCurrentDateToGivenDate(mDay, mMonth, mYear)) {
+                setDateButtonDate(mYear, mMonth, mDay);
+            }
+
+            startLocation = savedInstanceState.getParcelable("startLocation");
+            endLocation = savedInstanceState.getParcelable("endLocation");
+            startLocationName = savedInstanceState.getString("startLocationName");
+            endLocationName = savedInstanceState.getString("endLocationName");
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        Log.d(LOG_TAG, "onSaveInstanceState");
+
+        outState.putInt("minutes", mMinutes);
+        outState.putInt("hours", mHours);
+        outState.putInt("days", mDay);
+        outState.putInt("months", mMonth - 1);
+        outState.putInt("years", mYear);
+        outState.putParcelable("startLocation", startLocation);
+        outState.putParcelable("endLocation", endLocation);
+        outState.putString("startLocationName", mStartPlace.getText().toString());
+        outState.putString("endLocationName", mEndPlace.getText().toString());
+    }
+
+    /**
+     * Create a listener for the autocomplete list item choices
+     * @param autoCompleteTextView
+     */
     private void createOnItemClickListener(final AutoCompleteTextView autoCompleteTextView) {
         autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -240,12 +313,17 @@ public class JourneyPlannerFragment extends Fragment {
                 }
 
                 //close the soft keyboard
-                InputMethodManager in = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager in = (InputMethodManager)
+                        getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 in.hideSoftInputFromWindow(autoCompleteTextView.getWindowToken(), 0);
             }
         });
     }
 
+    /**
+     * Create a listener for the radio button choices
+     * @param group
+     */
     private void createRadioButtonChangeListener(RadioGroup group) {
         group.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -264,11 +342,14 @@ public class JourneyPlannerFragment extends Fragment {
         });
     }
 
+    /**
+     * Create a listener for the checkbox clicks
+     * @param checkBox
+     */
     private void createCheckBoxChangeListener(CheckBox checkBox) {
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                //RelativeLayout layout = (RelativeLayout) buttonView.getParent().getParent();
                 RelativeLayout layout = (RelativeLayout) buttonView.getParent();
 
                 int id = buttonView.getId();
@@ -308,32 +389,12 @@ public class JourneyPlannerFragment extends Fragment {
         });
     }
 
-    private void getTransportationModeChoices(RelativeLayout view) {
-        CheckBox box = (CheckBox) view.findViewById(R.id.checkBoxBus);
-        setTransportationModeParameter(MODE_BUS, box.isChecked());
-
-        box = (CheckBox) view.findViewById(R.id.checkBoxTrain);
-        setTransportationModeParameter(MODE_TRAIN, box.isChecked());
-
-        box = (CheckBox) view.findViewById(R.id.checkBoxMetro);
-        setTransportationModeParameter(MODE_METRO, box.isChecked());
-
-        box = (CheckBox) view.findViewById(R.id.checkBoxTram);
-        setTransportationModeParameter(MODE_TRAM, box.isChecked());
-
-        box = (CheckBox) view.findViewById(R.id.checkBoxUline);
-        setTransportationModeParameter(MODE_ULINE, box.isChecked());
-
-        box = (CheckBox) view.findViewById(R.id.checkBoxService);
-        setTransportationModeParameter(MODE_SERVICE, box.isChecked());
-
-        box = (CheckBox) view.findViewById(R.id.checkBoxOnlyWalking);
-        setTransportationModeParameter(MODE_WALKING, box.isChecked());
-
-        box = (CheckBox) view.findViewById(R.id.checkBoxOnlyCycling);
-        setTransportationModeParameter(MODE_CYCLING, box.isChecked());
-    }
-
+    /**
+     * Set the given value to all boxes except the untouchable box
+     * @param layout
+     * @param untouchable
+     * @param value
+     */
     private void checkOrUncheckOthers(RelativeLayout layout, int untouchable, boolean value) {
         if (R.id.checkBoxBus != untouchable) {
             markItem(R.id.checkBoxBus, value, layout);
@@ -355,25 +416,37 @@ public class JourneyPlannerFragment extends Fragment {
         }
     }
 
+    /**
+     * Set walking and cycling as checked
+     * @param layout
+     * @param value
+     */
     private void setWalkingAndCycling(RelativeLayout layout, boolean value) {
         markItem(R.id.checkBoxOnlyCycling, value, layout);
         markItem(R.id.checkBoxOnlyWalking, value, layout);
     }
 
+    /**
+     * Set the chosen box as checked
+     * @param item
+     * @param value
+     * @param layout
+     */
     private void markItem(int item, boolean value, RelativeLayout layout) {
         CheckBox box = (CheckBox) layout.findViewById(item);
         box.setChecked(value);
     }
 
-    private void setTransportationModeParameter(int mode, boolean value) {
-        mTransportationModeStates[mode] = value;
-    }
-
+    /**
+     * Create an onClickListener for the search button
+     * @param button
+     */
     private void createSearchButtonClickListener(Button button) {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (v.getId() == R.id.button_search) {
+
                     //validate that the start and end location have been chosen
                     if (startLocation == null) {
                         String message = "Choose a start location";
@@ -392,6 +465,169 @@ public class JourneyPlannerFragment extends Fragment {
         });
     }
 
+    /**
+     * Create an onClickListener for the time button
+     * @param button
+     */
+    private void createTimeButtonClickListener(Button button) {
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (v.getId() == R.id.whenTimeButton) {
+                    DialogFragment newFragment = new TimePickerFragment();
+                    newFragment.setTargetFragment(JourneyPlannerFragment.this, 0);
+                    newFragment.show(getFragmentManager(), "timePicker");
+                }
+            }
+        });
+    }
+
+    /**
+     * Create an onClickListener for the date button
+     * @param button
+     */
+    private void createDateButtonClickListener(Button button) {
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment newFragment = new DatePickerFragment();
+                newFragment.setTargetFragment(JourneyPlannerFragment.this, 0);
+                newFragment.show(getFragmentManager(), "datePicker");
+            }
+        });
+    }
+
+    /**
+     * Show a dialog from which a time can be chosen
+     */
+    public static class TimePickerFragment extends DialogFragment
+            implements TimePickerDialog.OnTimeSetListener {
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the current time as the default values for the picker
+            final Calendar c = Calendar.getInstance();
+            int hour = c.get(Calendar.HOUR_OF_DAY);
+            int minute = c.get(Calendar.MINUTE);
+
+            // Create a new instance of TimePickerDialog and return it
+            return new TimePickerDialog(getActivity(), this, hour, minute,
+                    DateFormat.is24HourFormat(getActivity()));
+        }
+
+        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+            // Do something with the time chosen by the user
+            JourneyPlannerFragment target = (JourneyPlannerFragment) getTargetFragment();
+            target.setTimeButtonTime(hourOfDay, minute);
+        }
+    }
+
+    /**
+     * Add a leading zero the to the number if it is < 10
+     * @param value
+     * @return formatted number
+     */
+    private String addLeadingZero(int value) {
+        if (value < 10) {
+            return "0" + value;
+        }
+        else {
+            return "" + value;
+        }
+    }
+
+    /**
+     * Set the time on the time button
+     * @param hour
+     * @param minute
+     */
+    private void setTimeButtonTime(int hour, int minute) {
+        String time = addLeadingZero(hour) + ":" + addLeadingZero(minute);
+        mTimeButton.setText(time);
+        mHours = hour;
+        mMinutes = minute;
+    }
+
+    /**
+     * Show a dialog from which a date can be chosen
+     */
+    public static class DatePickerFragment extends DialogFragment
+            implements DatePickerDialog.OnDateSetListener {
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the current date as the default date in the picker
+            final Calendar c = Calendar.getInstance();
+            int year = c.get(Calendar.YEAR);
+            int month = c.get(Calendar.MONTH);
+            int day = c.get(Calendar.DAY_OF_MONTH);
+
+            // Create a new instance of DatePickerDialog and return it
+            return new DatePickerDialog(getActivity(), this, year, month, day);
+        }
+
+        public void onDateSet(DatePicker view, int year, int month, int day) {
+            JourneyPlannerFragment target = (JourneyPlannerFragment) getTargetFragment();
+            target.setDateButtonDate(year, month, day);
+        }
+    }
+
+    /**
+     * Set the text on the date button
+     * @param dYear
+     * @param dMonth
+     * @param dDay
+     */
+    private void setDateButtonDate(int dYear, int dMonth, int dDay) {
+        dMonth = dMonth + 1; //months start from 0
+        String date = addLeadingZero(dDay) + "." + addLeadingZero(dMonth) + ".";
+        mDateButton.setText(date);
+        mDay = dDay;
+        mMonth = dMonth;
+        mYear = dYear;
+    }
+
+    /**
+     * Find out if the given time matches the current time
+     * @param minutes
+     * @param hours
+     * @return true if the times match, else false
+     */
+    private boolean compareCurrentTimeToGivenTime(int minutes, int hours) {
+        Calendar cal = Calendar.getInstance();
+        int currentHours = cal.get(Calendar.HOUR_OF_DAY);
+        int currentMinutes = cal.get(Calendar.MINUTE);
+
+        if (hours == currentHours && minutes == currentMinutes) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Find out if the given date matches the current date
+     * @param days
+     * @param months
+     * @param years
+     * @return true if the dates match, else false
+     */
+    private boolean compareCurrentDateToGivenDate(int days, int months, int years) {
+        Calendar cal = Calendar.getInstance();
+        int currentDays = cal.get(Calendar.DATE);
+        int currentMonths = cal.get(Calendar.MONTH);
+        int currentYears = cal.get(Calendar.YEAR);
+
+        if (currentDays == days && currentMonths == months && currentYears == years) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Prepare the route search query by formatting the query parameters
+     */
     private void prepareSearchQuery() {
 
         final String QUERY_BASE_URL =
@@ -447,8 +683,18 @@ public class JourneyPlannerFragment extends Fragment {
 
         String paramString = URLEncodedUtils.format(nameValuePairs, "utf-8");
 
+        //launch the route search task
+        startRouteSearchService(QUERY_BASE_URL + paramString);
+    }
+
+    /**
+     * Try to start the route search service
+     * @param query search parameters
+     */
+    private void startRouteSearchService(String query) {
+        //try to start the route search task
         try {
-            URL url = new URL(QUERY_BASE_URL + paramString);
+            URL url = new URL(query);
             Log.d(LOG_TAG, "launching route search "+url);
 
             progressDialog = new ProgressDialog(getActivity());
@@ -462,19 +708,29 @@ public class JourneyPlannerFragment extends Fragment {
         }
     }
 
+    /**
+     * Format the chosen query type for the search request
+     * @return a string formatted withe the type information
+     */
     private String getTimeType() {
         String timeType;
 
         if (mDeparture) {
-            timeType = "departure";
+            timeType = "" + R.string.journey_planner_start_time;
+            timeType = timeType.toLowerCase(); //format the parameter for the query
         }
         else {
-            timeType = "arrival";
+            timeType = "" + R.string.journey_planner_arrival_time;
+            timeType.toLowerCase(); //format the parameter for the query
         }
 
         return timeType;
     }
 
+    /**
+     * Format the chosen date for the search query
+     * @return a string formatted with the date information
+     */
     private String getDateParameter() {
         String date;
         Calendar cal = Calendar.getInstance();
@@ -498,6 +754,10 @@ public class JourneyPlannerFragment extends Fragment {
         return date;
     }
 
+    /**
+     * Format the chosen time for the search query
+     * @return a string formatted with the time information
+     */
     private String getTimeParameter() {
         Calendar cal;
 
@@ -521,157 +781,54 @@ public class JourneyPlannerFragment extends Fragment {
         return time;
     }
 
+    /**
+     * Format the chosen transportation types for the search query
+     * @return a string formatted with transportation types
+     */
     private String getTransportTypes() {
         String modes = "";
 
         CheckBox box = (CheckBox) mView.findViewById(R.id.checkBoxBus);
         if (box.isChecked()) {
-            modes = modes + "bus";
+            modes = modes + R.string.bus;
         }
 
         box = (CheckBox) mView.findViewById(R.id.checkBoxTrain);
         if (box.isChecked()) {
-            modes = modes + "|" + "train";
+            modes = modes + "|" + R.string.train;
         }
 
         box = (CheckBox) mView.findViewById(R.id.checkBoxMetro);
         if (box.isChecked()) {
-            modes = modes + "|" + "metro";
+            modes = modes + "|" + R.string.metro;
         }
 
         box = (CheckBox) mView.findViewById(R.id.checkBoxTram);
         if (box.isChecked()) {
-            modes = modes + "|" + "tram";
+            modes = modes + "|" + R.string.tram;
         }
 
         box = (CheckBox) mView.findViewById(R.id.checkBoxUline);
         if (box.isChecked()) {
-            modes = modes + "|" + "uline";
+            modes = modes + "|" + R.string.uline;
         }
 
         box = (CheckBox) mView.findViewById(R.id.checkBoxService);
         if (box.isChecked()) {
-            modes = modes + "|" + "service";
+            modes = modes + "|" + R.string.service;
         }
 
         box = (CheckBox) mView.findViewById(R.id.checkBoxOnlyWalking);
         if (box.isChecked()) {
-            return "walk";
+            return "" + R.string.walk;
         }
 
         box = (CheckBox) mView.findViewById(R.id.checkBoxOnlyCycling);
         if (box.isChecked()) {
-            return "cycle";
+            return "" + R.string.cycle;
         }
 
         return modes;
-    }
-
-    private void createTimeButtonClickListener(Button button) {
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (v.getId() == R.id.whenTimeButton) {
-                    Log.d(LOG_TAG, "time");
-                    DialogFragment newFragment = new TimePickerFragment();
-                    newFragment.setTargetFragment(JourneyPlannerFragment.this, 0);
-                    newFragment.show(getFragmentManager(), "timePicker");
-                }
-            }
-        });
-    }
-
-    private void createDateButtonClickListener(Button button) {
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(LOG_TAG, "date");
-                DialogFragment newFragment = new DatePickerFragment();
-                newFragment.setTargetFragment(JourneyPlannerFragment.this, 0);
-                newFragment.show(getFragmentManager(), "datePicker");
-            }
-        });
-    }
-
-    public static class TimePickerFragment extends DialogFragment
-            implements TimePickerDialog.OnTimeSetListener {
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            // Use the current time as the default values for the picker
-            final Calendar c = Calendar.getInstance();
-            int hour = c.get(Calendar.HOUR_OF_DAY);
-            int minute = c.get(Calendar.MINUTE);
-
-            // Create a new instance of TimePickerDialog and return it
-            return new TimePickerDialog(getActivity(), this, hour, minute,
-                    DateFormat.is24HourFormat(getActivity()));
-        }
-
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            // Do something with the time chosen by the user
-            JourneyPlannerFragment target = (JourneyPlannerFragment) getTargetFragment();
-            target.setTimeButtonTime(hourOfDay, minute);
-        }
-    }
-
-    private String addLeadingZero(int value) {
-        Log.d(LOG_TAG, "value " + value);
-        if (value < 10) {
-            return "0" + value;
-        }
-        else {
-            return "" + value;
-        }
-    }
-
-    private void setTimeButtonTime(int hour, int minute) {
-        String time = addLeadingZero(hour) + ":" + addLeadingZero(minute);
-        mTimeButton.setText(time);
-        mHours = hour;
-        mMinutes = minute;
-    }
-
-    public static class DatePickerFragment extends DialogFragment
-            implements DatePickerDialog.OnDateSetListener {
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            // Use the current date as the default date in the picker
-            final Calendar c = Calendar.getInstance();
-            int year = c.get(Calendar.YEAR);
-            int month = c.get(Calendar.MONTH);
-            int day = c.get(Calendar.DAY_OF_MONTH);
-
-            // Create a new instance of DatePickerDialog and return it
-            return new DatePickerDialog(getActivity(), this, year, month, day);
-        }
-
-        public void onDateSet(DatePicker view, int year, int month, int day) {
-            // Do something with the date chosen by the user
-            JourneyPlannerFragment target = (JourneyPlannerFragment) getTargetFragment();
-            target.setDateButtonDate(year, month, day);
-        }
-    }
-
-    private void setDateButtonDate(int dYear, int dMonth, int dDay) {
-        dMonth = dMonth + 1; //months start from 0
-        String date = addLeadingZero(dDay) + "." + addLeadingZero(dMonth) + ".";
-        mDateButton.setText(date);
-        mDay = dDay;
-        mMonth = dMonth;
-        mYear = dYear;
-    }
-
-    private void resetTimeAndDate() {
-        Log.d(LOG_TAG, "reset time and date");
-        mDateButton.setText(R.string.journey_planner_now_date);
-        mTimeButton.setText(R.string.journey_planner_now_time);
-        mHours = -1;
-        mMinutes = -1;
-        mDay = -1;
-        mMonth = -1;
-        mYear = -1;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -679,26 +836,6 @@ public class JourneyPlannerFragment extends Fragment {
         if (mListener != null) {
             mListener.onFragmentInteraction(string);
         }
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        ((MainActivity) activity).onSectionAttached(
-                getArguments().getInt(ARG_PARAM1));
-
-        try {
-            mListener = (OnFragmentInteractionListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
     }
 
     /**
@@ -716,6 +853,8 @@ public class JourneyPlannerFragment extends Fragment {
         public void onFragmentInteraction(String string);
     }
 
+    //getters and setters
+
     public ArrayList<Location> getLocationList() {
         return locationList;
     }
@@ -724,75 +863,39 @@ public class JourneyPlannerFragment extends Fragment {
         this.locationList = locationList;
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public String getStartLocationName() {
+        return startLocationName;
+    }
 
-        Log.d(LOG_TAG, "onActivityCreated");
+    public String getEndLocationName() {
+        return endLocationName;
+    }
 
-        if (savedInstanceState != null) {
-            mHours = savedInstanceState.getInt("hours");
-            mMinutes = savedInstanceState.getInt("minutes");
-            mYear = savedInstanceState.getInt("years");
-            mMonth = savedInstanceState.getInt("months");
-            mDay = savedInstanceState.getInt("days");
+    /**
+     * Launch the route list activity only if the app is on the foreground.
+     */
+    private void launchRouteListActivity() {
+        //check if the fragment is visible
+        if (this.isVisible()) {
+            //launch an activity to show the routes if any routes were found
+            if (routes != null && !routes.isEmpty()) {
+                Intent launchIntent = new Intent(getActivity(), RouteListActivity.class);
 
-            if (compareCurrentTimeToGivenTime(mMinutes, mHours)) {
-                setTimeButtonTime(mHours, mMinutes);
+                //add the routes to the intent as extras
+                launchIntent.putParcelableArrayListExtra(RouteSearchService.SER_KEY, routes);
+                launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(launchIntent);
             }
-            if (compareCurrentDateToGivenDate(mDay, mMonth, mYear)) {
-                setDateButtonDate(mYear, mMonth, mDay);
+            else {
+                String message = "Please try again.";
+                Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
             }
-
-            startLocation = savedInstanceState.getParcelable("startLocation");
-            endLocation = savedInstanceState.getParcelable("endLocation");
-            startLocationName = savedInstanceState.getString("startLocationName");
-            endLocationName = savedInstanceState.getString("endLocationName");
         }
     }
 
-    private boolean compareCurrentTimeToGivenTime(int minutes, int hours) {
-        Calendar cal = Calendar.getInstance();
-        int currentHours = cal.get(Calendar.HOUR_OF_DAY);
-        int currentMinutes = cal.get(Calendar.MINUTE);
-
-        if (hours == currentHours && minutes == currentMinutes) {
-            return true;
-        }
-
-        return false;
-    }
-
-    private boolean compareCurrentDateToGivenDate(int days, int months, int years) {
-        Calendar cal = Calendar.getInstance();
-        int currentDays = cal.get(Calendar.DATE);
-        int currentMonths = cal.get(Calendar.MONTH);
-        int currentYears = cal.get(Calendar.YEAR);
-
-        if (currentDays == days && currentMonths == months && currentYears == years) {
-            return true;
-        }
-
-        return false;
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        Log.d(LOG_TAG, "onSaveInstanceState");
-
-        outState.putInt("minutes", mMinutes);
-        outState.putInt("hours", mHours);
-        outState.putInt("days", mDay);
-        outState.putInt("months", mMonth - 1);
-        outState.putInt("years", mYear);
-        outState.putParcelable("startLocation", startLocation);
-        outState.putParcelable("endLocation", endLocation);
-        outState.putString("startLocationName", mStartPlace.getText().toString());
-        outState.putString("endLocationName", mEndPlace.getText().toString());
-    }
-
+    /**
+     * Receive broadcast from the route search service when the task finishes
+     */
     private BroadcastReceiver routeSearchReceiver = new BroadcastReceiver() {
 
         @Override
@@ -804,11 +907,15 @@ public class JourneyPlannerFragment extends Fragment {
 
                 routes = intent.getParcelableArrayListExtra("routes");
 
+                //start the reverse geocode service to fill in missing location information
                 ReverseGeocodeService.startReverseGeocoding(getActivity(), routes);
             }
         }
     };
 
+    /**
+     * Receive broadcast from the reverse geocode service when the task finishes
+     */
     private BroadcastReceiver reverseGeocodeReceiver = new BroadcastReceiver() {
 
         @Override
@@ -818,33 +925,16 @@ public class JourneyPlannerFragment extends Fragment {
             if (intent != null && intent.hasExtra(ReverseGeocodeService.REVERSE_GEOCODED_ROUTES_EXTRA)) {
                 Log.d(LOG_TAG, "reverseGeocodeReceiver, found routes");
 
+                //if the progress dialog is still being shown, dismiss it
                 if (progressDialog != null && progressDialog.isShowing()) {
                     progressDialog.dismiss();
                 }
 
-                routes = intent.getParcelableArrayListExtra(ReverseGeocodeService.REVERSE_GEOCODED_ROUTES_EXTRA);
+                routes = intent.getParcelableArrayListExtra(
+                        ReverseGeocodeService.REVERSE_GEOCODED_ROUTES_EXTRA);
 
-                //launch an activity to show the routes if any routes were found
-                if (routes != null && !routes.isEmpty()) {
-                    Intent launchIntent = new Intent(getActivity(), RouteListActivity.class);
-
-                    //add the routes to the intent as extras
-                    launchIntent.putParcelableArrayListExtra(RouteSearchService.SER_KEY, routes);
-                    startActivity(launchIntent);
-                }
-                else {
-                    String message = "Please try again.";
-                    Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-                }
+                launchRouteListActivity();
             }
         }
     };
-
-    public String getStartLocationName() {
-        return startLocationName;
-    }
-
-    public String getEndLocationName() {
-        return endLocationName;
-    }
 }
