@@ -37,13 +37,11 @@
         </TableRow>
     </TableLayout>
 
-    <ExpandableListView
+    <ListView
         android:id="@+id/list_routes"
-        android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:clickable="false"
-        android:drawSelectorOnTop="false"
-        android:focusable="false"
-        android:groupIndicator="@android:color/transparent" />
+        android:layout_height="match_parent"
+        style="@style/RouteListStyle"
+        android:divider="@null" />
 
 </LinearLayout>

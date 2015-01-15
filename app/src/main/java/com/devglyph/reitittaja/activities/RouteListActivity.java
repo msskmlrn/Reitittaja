@@ -51,9 +51,6 @@ public class RouteListActivity extends FragmentActivity
         //get the route info from the extras
         routes = intent.getParcelableArrayListExtra(JourneyPlannerFragment.SER_KEY);
 
-        String startPlace = routes.get(0).getStartLocation().getName();
-        String endPlace = routes.get(0).getEndLocation().getName();
-
         if (findViewById(R.id.route_detail_container) != null) {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-large and
@@ -67,15 +64,6 @@ public class RouteListActivity extends FragmentActivity
                     .findFragmentById(R.id.route_list))
                     .setActivateOnItemClick(true);
         }
-
-        //pass the routes to the fragment
-        RouteListFragment routeListFragment = ((RouteListFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.route_list));
-        routeListFragment.setRoutes(routes);
-
-        //pass the start and end place names to the fragment
-        routeListFragment.setStartPlaceName(startPlace);
-        routeListFragment.setEndPlaceName(endPlace);
     }
 
     /**

@@ -5,28 +5,27 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseExpandableListAdapter;
+import android.widget.ArrayAdapter;
 import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.devglyph.reitittaja.R;
+import com.devglyph.reitittaja.models.Route;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Date;
 
-public class RoutesAdapter extends BaseExpandableListAdapter {
+public class RoutesAdapter extends ArrayAdapter<Route> {
 
-    private ArrayList<ArrayList<HashMap<String, String>>> mChildData;
-    private ArrayList<HashMap<String, String>> mGroupData;
+    private ArrayList<Route> mRoutes;
     private Context mContext;
-    private final LayoutInflater inf;
 
     /**
      * Save the references to the view
      */
     static class ViewHolder {
         public TextView duration;
-        public TextView firstRowBorder;
         public TableRow iconRow;
         public TextView routeId;
         public TextView startTime;
@@ -34,54 +33,21 @@ public class RoutesAdapter extends BaseExpandableListAdapter {
         public TextView dummyTextView;
     }
 
-    public RoutesAdapter(ArrayList<ArrayList<HashMap<String, String>>> childData, ArrayList<HashMap<String, String>> groupData, Context context) {
-        this.mChildData = childData;
-        this.mGroupData = groupData;
+    public RoutesAdapter(Context context, ArrayList<Route> routes) {
+        super(context, R.layout.routes_list_item, routes);
+        this.mRoutes = routes;
         this.mContext = context;
-        inf = LayoutInflater.from(context);
     }
 
     @Override
-    public int getGroupCount() {
-        return mGroupData.size();
-    }
-
-    @Override
-    public int getChildrenCount(int groupPosition) {
-        return mChildData.get(groupPosition).size();
-    }
-
-    @Override
-    public Object getGroup(int groupPosition) {
-        return mGroupData.get(groupPosition);
-    }
-
-    @Override
-    public Object getChild(int groupPosition, int childPosition) {
-        return mChildData.get(groupPosition).get(childPosition);
-    }
-
-    @Override
-    public long getGroupId(int groupPosition) {
-        return groupPosition;
-    }
-
-    @Override
-    public long getChildId(int groupPosition, int childPosition) {
-        return childPosition;
-    }
-
-    @Override
-    public boolean hasStableIds() {
-        return true;
-    }
-
-    @Override
-    public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
 
+        Route route = getItem(position);
+
         if (convertView == null) {
-            convertView = inf.inflate(R.layout.expandable_list_group, null);
+            LayoutInflater inflater = LayoutInflater.from(getContext());
+            convertView = inflater.inflate(R.layout.routes_list_item, parent, false);
 
             holder = new ViewHolder();
             holder.duration = (TextView) convertView.findViewById(R.id.text_s_duration);
@@ -95,48 +61,73 @@ public class RoutesAdapter extends BaseExpandableListAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        holder.startTime.setText(mGroupData.get(groupPosition).get("st_time"));
-        holder.endTime.setText(mGroupData.get(groupPosition).get("end_time"));
+        holder.startTime.setText(parseTimeToHHMM(route.getStartLocation().getDepartureTime()));
+        holder.endTime.setText(parseTimeToHHMM(route.getEndLocation().getArrivalTime()));
 
         holder.iconRow.removeAllViews();
 
-        addLegIconsToGroup(holder, groupPosition);
+        addLegIconsToGroup(holder, route);
 
-        holder.duration.setText(mGroupData.get(groupPosition).get("duration"));
+        holder.duration.setText( calculateDurationInHHMM(route.getDuration()));
         holder.duration.setTextColor(Color.BLACK);
 
         return convertView;
     }
 
-    @Override
-    public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        //TextView textView = new TextView(mContext);
-        //textView.setText(getChild(groupPosition, childPosition).toString());
-        //return textView;
+    private String parseTimeToHHMM(Date date) {
+        SimpleDateFormat simpleDateFormat;
 
-        return convertView;
+        simpleDateFormat = new SimpleDateFormat("HHmm");
+        return simpleDateFormat.format(date);
     }
 
-    @Override
-    public boolean isChildSelectable(int groupPosition, int childPosition) {
-        return true;
+    /**
+     * Format the duration to X h Y min (Z sec) format.
+     * @param duration in seconds
+     * @return duration in string X h Y min format, if h and min > 0, else return Z sec
+     */
+    public static String calculateDurationInHHMM(double duration) {
+        String hh = "";
+        String mm = "";
+        String ss = "";
+
+        int h = 0;
+        int m = 0;
+        int s = 0;
+
+        if (((int) duration / 3600) > 0) {
+            h = ((int) duration / 3600);
+            hh = h + " h ";
+        }
+
+        if (((int) duration % 3600) / 60 > 0) {
+            m = (((int) duration % 3600) / 60);
+            mm = m + " min ";
+        }
+
+        if (h == 0 && m == 0) {
+            s = (int) duration; //the duration is already in seconds, so just cast it
+            ss = s + " sec";
+        }
+
+        return hh + mm + ss;
     }
 
     /**
      * Add leg icons to the group
      * @param holder
-     * @param groupPosition
+     * @param route
      */
-    private void addLegIconsToGroup(ViewHolder holder, int groupPosition) {
+    private void addLegIconsToGroup(ViewHolder holder, Route route) {
         // Add leg icons to group
-        for (int i = 0; i < mChildData.get(groupPosition).size(); i++) {
-            String icon = mChildData.get(groupPosition).get(i).get("icon");
+        for (int i = 0; i < route.getLegs().size(); i++) {
+            String icon = "" + route.getLegs().get(i).getType();
             //int iIcon = Integer.parseInt(icon);
 
             TextView tView = new TextView(mContext);
             //tView.setCompoundDrawablesWithIntrinsicBounds(null,
             //        mContext.getResources().getDrawable(iIcon), null, null);
-            tView.setText(mChildData.get(groupPosition).get(i).get("routeId"));
+            tView.setText(route.getLegs().get(i).getLineCode());
 
             tView.setFocusable(false);
             tView.setTextColor(Color.BLACK);
