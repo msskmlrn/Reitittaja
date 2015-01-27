@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -26,8 +27,9 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
+import android.widget.ImageButton;
 import android.widget.RadioGroup;
-import android.widget.RelativeLayout;
+import android.widget.TableLayout;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -61,7 +63,7 @@ import java.util.List;
  * Use the {@link JourneyPlannerFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class JourneyPlannerFragment extends Fragment {
+public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFragment.OnFavoriteChosenListener {
 
     private static final String SECTION_PARAM = "param1";
 
@@ -75,6 +77,9 @@ public class JourneyPlannerFragment extends Fragment {
 
     private Button mTimeButton;
     private Button mDateButton;
+
+    private ImageButton mFromFavoriteButton;
+    private ImageButton mToFavoriteButton;
 
     private AutoCompleteTextView mStartPlace;
     private AutoCompleteTextView mEndPlace;
@@ -217,6 +222,12 @@ public class JourneyPlannerFragment extends Fragment {
         mDateButton = (Button) mView.findViewById(R.id.whenDateButton);
         createDateButtonClickListener(mDateButton);
         mDateButton.setText(R.string.journey_planner_now_date);
+
+        mFromFavoriteButton = (ImageButton) mView.findViewById(R.id.from_favorites);
+        createFavoriteButtonClickListener(mFromFavoriteButton);
+
+        mToFavoriteButton = (ImageButton) mView.findViewById(R.id.to_favorites);
+        createFavoriteButtonClickListener(mToFavoriteButton);
     }
 
     /**
@@ -242,7 +253,7 @@ public class JourneyPlannerFragment extends Fragment {
             mListener = (OnFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnFavoriteChosenListener");
         }
     }
 
@@ -307,8 +318,7 @@ public class JourneyPlannerFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (autoCompleteTextView.getId() == R.id.start_place) {
                     startLocation = getLocationList().get(position);
-                }
-                else if (autoCompleteTextView.getId() == R.id.end_place) {
+                } else if (autoCompleteTextView.getId() == R.id.end_place) {
                     endLocation = getLocationList().get(position);
                 }
 
@@ -350,7 +360,8 @@ public class JourneyPlannerFragment extends Fragment {
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                RelativeLayout layout = (RelativeLayout) buttonView.getParent();
+                //RelativeLayout layout = (RelativeLayout) buttonView.getParent();
+                TableLayout layout = (TableLayout) buttonView.getParent().getParent();
 
                 int id = buttonView.getId();
                 if (id == R.id.checkBoxBus || id == R.id.checkBoxTrain || id == R.id.checkBoxMetro
@@ -395,7 +406,7 @@ public class JourneyPlannerFragment extends Fragment {
      * @param untouchable
      * @param value
      */
-    private void checkOrUncheckOthers(RelativeLayout layout, int untouchable, boolean value) {
+    private void checkOrUncheckOthers(TableLayout layout, int untouchable, boolean value) {
         if (R.id.checkBoxBus != untouchable) {
             markItem(R.id.checkBoxBus, value, layout);
         }
@@ -421,7 +432,7 @@ public class JourneyPlannerFragment extends Fragment {
      * @param layout
      * @param value
      */
-    private void setWalkingAndCycling(RelativeLayout layout, boolean value) {
+    private void setWalkingAndCycling(TableLayout layout, boolean value) {
         markItem(R.id.checkBoxOnlyCycling, value, layout);
         markItem(R.id.checkBoxOnlyWalking, value, layout);
     }
@@ -432,7 +443,7 @@ public class JourneyPlannerFragment extends Fragment {
      * @param value
      * @param layout
      */
-    private void markItem(int item, boolean value, RelativeLayout layout) {
+    private void markItem(int item, boolean value, TableLayout layout) {
         CheckBox box = (CheckBox) layout.findViewById(item);
         box.setChecked(value);
     }
@@ -452,8 +463,7 @@ public class JourneyPlannerFragment extends Fragment {
                         String message = "Choose a start location";
                         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
                         return;
-                    }
-                    else if (endLocation == null) {
+                    } else if (endLocation == null) {
                         String message = "Choose an end location";
                         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
                         return;
@@ -461,6 +471,52 @@ public class JourneyPlannerFragment extends Fragment {
 
                     prepareSearchQuery();
                 }
+            }
+        });
+    }
+
+    /**
+     * Create an onClickListener for the favorite buttons
+     * @param button
+     */
+    private void createFavoriteButtonClickListener(ImageButton button) {
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String name = "";
+                String description = "";
+                double lat = -1;
+                double lon = -1;
+                boolean start = true;
+
+                if (v.getId() == R.id.from_favorites) {
+                    Log.d(LOG_TAG, "from");
+                    name = mStartPlace.getText().toString();
+
+                    //check if the start location has been selected
+                    if (startLocation != null) {
+                        lat = startLocation.getCoords().getLatitude();
+                        lon = startLocation.getCoords().getLongitude();
+                        description = startLocation.getDescription();
+                    }
+                }
+                else if (v.getId() == R.id.to_favorites) {
+                    Log.d(LOG_TAG, "to");
+                    name = mEndPlace.getText().toString();
+                    start = false;
+
+                    //check if the end location has been selected
+                    if (endLocation != null) {
+                        lat = endLocation.getCoords().getLatitude();
+                        lon = endLocation.getCoords().getLongitude();
+                        description = endLocation.getDescription();
+                    }
+                }
+
+                FragmentManager manager = getFragmentManager();
+                FavoriteDialogFragment dialog = FavoriteDialogFragment.newInstance(
+                        name, description, lat, lon, start);
+                dialog.show(manager, "dialog");
             }
         });
     }
@@ -495,6 +551,15 @@ public class JourneyPlannerFragment extends Fragment {
                 newFragment.show(getFragmentManager(), "datePicker");
             }
         });
+    }
+
+    @Override
+    public void onFavoriteChosen(Location location, boolean startPlace) {
+        Log.d(LOG_TAG, "onFavoriteSaved");
+        Log.d(LOG_TAG, "onFavoriteSaved " + location.getName());
+        Log.d(LOG_TAG, "onFavoriteSaved " + location.getDescription());
+        Log.d(LOG_TAG, "onFavoriteSaved " + location.getCoords().getLatitude() + ", " + location.getCoords().getLongitude());
+        Log.d(LOG_TAG, "onFavoriteSaved " + location.isFavorite());
     }
 
     /**
@@ -851,6 +916,18 @@ public class JourneyPlannerFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         public void onFragmentInteraction(String string);
+    }
+
+    public void placeChosenFromFavorites(Location location, boolean clickForStartPlace) {
+        Log.d(LOG_TAG, "placeChosenFromFavorites");
+        if (clickForStartPlace) {
+            startLocation = location;
+            mStartPlace.setText(location.getName());
+        }
+        else {
+            endLocation = location;
+            mEndPlace.setText(location.getName());
+        }
     }
 
     //getters and setters
