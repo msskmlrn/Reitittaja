@@ -1,4 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <!--
     Layout alias to replace the single-pane version of the layout with a
     two-pane version on Large screens.
@@ -6,5 +8,8 @@
     For more on layout aliases, see:
     http://developer.android.com/training/multiscreen/screensizes.html#TaskUseAliasFilters
     -->
-    <item type="layout" name="activity_route_list">@layout/activity_route_twopane</item>
+    <item name="activity_route_list" type="layout">@layout/activity_route_twopane</item>
+    <item name="fragment_favorite" type="layout">@layout/fragment_favorite_grid</item>
+    <item name="fragment_favoritedialog" type="layout">@layout/fragment_favoritedialog_grid</item>
+
 </resources>

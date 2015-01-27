@@ -6,6 +6,7 @@
     <string name="title_section2">Stops</string>
     <string name="title_section3">Lines</string>
     <string name="title_section4">Map</string>
+    <string name="title_section5">Favorites</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Example action</string>
@@ -30,6 +31,9 @@
     <string name="journey_planner_now_time">Now</string>
     <string name="journey_planner_now_date">Today</string>
     <string name="journey_planner_current_location">Current location</string>
+    <string name="favorite_dialog_save_button">Save</string>
+    <string name="favorite_dialog_header">Save current location to favorites</string>
+    <string name="favorite_dialog_list">Favorites</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="pick_time">Time</string>
     <string name="pick_date">Date</string>
@@ -46,5 +50,10 @@
     <string name="service">service</string>
     <string name="walk">walk</string>
     <string name="cycle">cycle</string>
+    <string name="favorite_description">Description</string>
+    <string name="favorite_save">Save</string>
+    <string name="favorite_cancel">Cancel</string>
+    <string name="new_favorite_dialog_header">Save as favorite</string>
+
 
 </resources>
