@@ -1,12 +1,17 @@
 package com.devglyph.reitittaja.services;
 
 import android.app.IntentService;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.devglyph.reitittaja.R;
+import com.devglyph.reitittaja.data.LocationContract;
 import com.devglyph.reitittaja.models.Coordinates;
 import com.devglyph.reitittaja.models.Location;
 import com.devglyph.reitittaja.models.Route;
@@ -40,6 +45,8 @@ public class ReverseGeocodeService extends IntentService {
 
     private final String LOG_TAG = ReverseGeocodeService.class.getSimpleName();
 
+    private static final String TAG = ReverseGeocodeService.class.getSimpleName();
+
     /**
      * Starts this service to perform reverse geocode search with the given parameters. If
      * the service is already performing a task this action will be queued.
@@ -47,7 +54,7 @@ public class ReverseGeocodeService extends IntentService {
      * @see IntentService
      */
     public static void startReverseGeocoding(Context context, ArrayList<Route> routes) {
-        Log.d("com.devglyph.reitittaja.services.action.REVERSE_GEOCODE_SEARCH", "startReverseGeocoding");
+        Log.d(TAG, "startReverseGeocoding");
         Intent intent = new Intent(context, ReverseGeocodeService.class);
         intent.setAction(ACTION_REVERSE_GEOCODE);
         intent.putParcelableArrayListExtra(REVERSE_GEOCODED_ROUTES_EXTRA, routes);
@@ -88,12 +95,64 @@ public class ReverseGeocodeService extends IntentService {
                             location.setName(loc.getName());
                         }
                     }
+                    //the location has all the needed info, so save it to the database for later use
+                    else {
+                        addLocation(false, location.getName(), null, location.getCoordinates().getLatitude(), location.getCoordinates().getLongitude());
+                    }
                 }
             }
         }
 
         notifyFinished(routes);
     }
+
+    /**
+     * Helper method to handle insertion of a new location in the weather database.
+     *
+     * @param lat the latitude of the city
+     * @param lon the longitude of the city
+     * @return the row ID of the added location.
+     */
+    private long addLocation(boolean favorite, String name, String description, double lat, double lon) {
+        Log.d(LOG_TAG, "add location "+favorite + " "+name + " "+ description + " " + lat + " " + lon);
+
+        // First, check if the location with this name exists in the db
+        Cursor cursor = this.getContentResolver().query(
+                LocationContract.LocationEntry.CONTENT_URI,
+                new String[]{LocationContract.LocationEntry._ID},
+                LocationContract.LocationEntry.COLUMN_LOCATION_NAME + " = ?",
+                new String[]{name},
+                null,
+                null);
+
+        if (cursor.moveToFirst()) {
+            int locationIdIndex = cursor.getColumnIndex(LocationContract.LocationEntry._ID);
+            Log.d(LOG_TAG, "location already present");
+
+            return cursor.getLong(locationIdIndex);
+        } else {
+            int favoriteValue = favorite == true ? 1 : 0;
+
+            if (description == null || description.isEmpty()) {
+                description = "-";
+            }
+
+            ContentValues locationValues = new ContentValues();
+            locationValues.put(LocationContract.LocationEntry.COLUMN_FAVORITE, favoriteValue);
+            locationValues.put(LocationContract.LocationEntry.COLUMN_LOCATION_DESCRIPTION, description);
+            locationValues.put(LocationContract.LocationEntry.COLUMN_LOCATION_NAME, name);
+            locationValues.put(LocationContract.LocationEntry.COLUMN_COORD_LAT, lat);
+            locationValues.put(LocationContract.LocationEntry.COLUMN_COORD_LONG, lon);
+
+            Uri locationInsertUri = this.getContentResolver()
+                    .insert(LocationContract.LocationEntry.CONTENT_URI, locationValues);
+
+            Log.d(LOG_TAG, "inserting location");
+
+            return ContentUris.parseId(locationInsertUri);
+        }
+    }
+
 
     private void notifyFinished(ArrayList<Route> routes) {
         Intent intent = new Intent(REVERSE_GEOCODING_DONE);
