@@ -67,7 +67,7 @@ public class RouteSearchService extends IntentService {
                 Log.d(LOG_TAG, "if (ACTION_ROUTE_SEARCH.equals(action)) {");
 
                 final String url = intent.getStringExtra(URL_EXTRA);
-                handleActionFoo(url);
+                handleRouteSearchAction(url);
             }
         }
     }
@@ -76,7 +76,7 @@ public class RouteSearchService extends IntentService {
      * Handle the route search action in the provided background thread with the provided
      * parameter.
      */
-    private void handleActionFoo(String urlParam) {
+    private void handleRouteSearchAction(String urlParam) {
         if (urlParam == null) {
             return;
         }
