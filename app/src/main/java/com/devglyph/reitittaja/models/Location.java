@@ -17,6 +17,9 @@ public class Location implements Parcelable {
     private Coordinates coords; //Coordinates of the location (<x,y>, e.g. 2551217,6681725).
     private LocationDetails details; //Detailed information about the location such as houseNumber for addresses, poiClass for POIs and codes for stops.
 
+    private boolean favorite; //if the location has been saved to the favorites
+    private String description; //description given to the favorite location
+
     public Location(String locType, int locTypeId, String name,
                             String matchedName, String lang, String city,
                             Coordinates coords, LocationDetails details) {
@@ -29,6 +32,14 @@ public class Location implements Parcelable {
         this.city = city;
         this.coords = coords;
         this.details = details;
+    }
+
+    public Location(String name, String description, double latitude, double longitude, boolean favorite) {
+        this.name = name;
+        this.coords = new Coordinates(latitude, longitude);
+        this.details = new LocationDetails();
+        this.description = description;
+        this.favorite = favorite;
     }
 
     /**
@@ -159,6 +170,22 @@ public class Location implements Parcelable {
         this.details = details;
     }
 
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     @Override
     public String toString() {
         String result = getName() + " - " + getCity();
@@ -187,6 +214,9 @@ public class Location implements Parcelable {
         dest.writeString(city);
         dest.writeParcelable(coords, flags);
         dest.writeParcelable(details, flags);
+        int favoriteValue = favorite == true ? 1 : 0;
+        dest.writeInt(favoriteValue);
+        dest.writeString(description);
     }
 
     public static final Parcelable.Creator<Location> CREATOR = new Parcelable.Creator<Location>() {
@@ -208,5 +238,10 @@ public class Location implements Parcelable {
         city = in.readString();
         coords = in.readParcelable(Coordinates.class.getClassLoader());
         details = in.readParcelable(LocationDetails.class.getClassLoader());
+
+        int favoriteValue = in.readInt();
+        favorite = favoriteValue == 1 ? true : false;
+
+        description = in.readString();
     }
 }
