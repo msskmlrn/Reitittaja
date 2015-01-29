@@ -37,8 +37,6 @@ public class MainActivity extends ActionBarActivity implements
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
 
-    private JourneyPlannerFragment mJourneyPlannerFragment;
-
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
@@ -64,12 +62,9 @@ public class MainActivity extends ActionBarActivity implements
         // update the main content by replacing fragments
         if (!fromSavedInstanceState) {
             Fragment fragment = null;
-            mJourneyPlannerFragment = null;
 
             if (position == 0) {
-                //fragment = JourneyPlannerFragment.newInstance(position + 1);
-                mJourneyPlannerFragment = JourneyPlannerFragment.newInstance(position + 1);
-                fragment = mJourneyPlannerFragment;
+                fragment = JourneyPlannerFragment.newInstance(position + 1);
             }
             else if (position == 1) {
                 fragment = PlaceholderFragment.newInstance(position + 1);
@@ -152,8 +147,12 @@ public class MainActivity extends ActionBarActivity implements
         Log.d(LOG_TAG, "onFavoriteChosen " + location.getDescription());
         Log.d(LOG_TAG, "onFavoriteChosen " + location.getCoords().getLatitude() + ", " + location.getCoords().getLongitude());
         Log.d(LOG_TAG, "onFavoriteChosen " + location.isFavorite());
-        if (mJourneyPlannerFragment != null) {
-            mJourneyPlannerFragment.placeChosenFromFavorites(location, startPlace);
+
+        //get a reference to the fragment and pass the location to it
+        JourneyPlannerFragment fragment = (JourneyPlannerFragment) getSupportFragmentManager().findFragmentById(R.id.container);
+        if (fragment != null) {
+            Log.d(LOG_TAG, "onFavoriteChosen, passing to journey planner fragment");
+            fragment.placeChosenFromFavorites(location, startPlace);
         }
     }
 
@@ -164,8 +163,12 @@ public class MainActivity extends ActionBarActivity implements
         Log.d(LOG_TAG, "onFavoriteSaved " + location.getDescription());
         Log.d(LOG_TAG, "onFavoriteSaved " + location.getCoords().getLatitude() + ", " + location.getCoords().getLongitude());
         Log.d(LOG_TAG, "onFavoriteSaved " + location.isFavorite());
-        if (mJourneyPlannerFragment != null) {
-            mJourneyPlannerFragment.placeChosenFromFavorites(location, clickForStartPlace);
+
+        //get a reference to the fragment and pass the location to it
+        JourneyPlannerFragment fragment = (JourneyPlannerFragment) getSupportFragmentManager().findFragmentById(R.id.container);
+        if (fragment != null) {
+            Log.d(LOG_TAG, "onFavoriteSaved, passing to journey planner fragment");
+            fragment.placeChosenFromFavorites(location, clickForStartPlace);
         }
     }
 

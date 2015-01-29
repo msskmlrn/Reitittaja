@@ -922,10 +922,12 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
         Log.d(LOG_TAG, "placeChosenFromFavorites");
         if (clickForStartPlace) {
             startLocation = location;
+            Log.d(LOG_TAG, "setting location name to "+location.getName());
             mStartPlace.setText(location.getName());
         }
         else {
             endLocation = location;
+            Log.d(LOG_TAG, "setting location name to "+location.getName());
             mEndPlace.setText(location.getName());
         }
     }
