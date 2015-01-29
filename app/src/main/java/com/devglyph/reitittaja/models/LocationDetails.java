@@ -13,7 +13,7 @@ public class LocationDetails implements Parcelable {
     private String shortCode;
     private double changeCost;
     private ArrayList<String> lines;
-    private int transportTypeId;
+    private int transportTypeId = 0; //default value
     private int houseNumber;
     private String poiType;
 
