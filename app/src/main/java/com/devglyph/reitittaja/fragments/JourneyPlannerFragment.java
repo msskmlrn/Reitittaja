@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -101,9 +100,6 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
     private Location startLocation;
     private Location endLocation;
 
-    private String startLocationName;
-    private String endLocationName;
-
     private ArrayList<Route> routes;
     private ArrayList<Location> locationList = new ArrayList<>();
 
@@ -173,6 +169,13 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
 
         initializeTransportationModeBoxes();
         initializeButtons();
+
+        //restore the saved values after initializing the buttons (time and date buttons need to be
+        // initialized before trying to set values to them).
+        //However, call the method before initializing the autocomplete adapter, so that the
+        // start/end location have been restored
+        restoreInstanceState(savedInstanceState);
+
         initializeTextFields();
 
         Log.d(LOG_TAG, "onCreateView");
@@ -263,10 +266,7 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
         mListener = null;
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
+    private void restoreInstanceState(Bundle savedInstanceState) {
         Log.d(LOG_TAG, "onActivityCreated");
 
         if (savedInstanceState != null) {
@@ -286,8 +286,6 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
 
             startLocation = savedInstanceState.getParcelable("startLocation");
             endLocation = savedInstanceState.getParcelable("endLocation");
-            startLocationName = savedInstanceState.getString("startLocationName");
-            endLocationName = savedInstanceState.getString("endLocationName");
         }
     }
 
@@ -304,8 +302,6 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
         outState.putInt("years", mYear);
         outState.putParcelable("startLocation", startLocation);
         outState.putParcelable("endLocation", endLocation);
-        outState.putString("startLocationName", mStartPlace.getText().toString());
-        outState.putString("endLocationName", mEndPlace.getText().toString());
     }
 
     /**
@@ -318,14 +314,19 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (autoCompleteTextView.getId() == R.id.start_place) {
                     startLocation = getLocationList().get(position);
+                    mStartPlace.clearFocus();
                 } else if (autoCompleteTextView.getId() == R.id.end_place) {
                     endLocation = getLocationList().get(position);
+                    mEndPlace.clearFocus();
                 }
 
                 //close the soft keyboard
                 InputMethodManager in = (InputMethodManager)
                         getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 in.hideSoftInputFromWindow(autoCompleteTextView.getWindowToken(), 0);
+
+                //move the focus away from the text view
+                getActivity().findViewById(R.id.editTexts).requestFocus();
             }
         });
     }
@@ -922,14 +923,17 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
         Log.d(LOG_TAG, "placeChosenFromFavorites");
         if (clickForStartPlace) {
             startLocation = location;
-            Log.d(LOG_TAG, "setting location name to "+location.getName());
             mStartPlace.setText(location.getName());
+            mStartPlace.clearFocus();
         }
         else {
             endLocation = location;
-            Log.d(LOG_TAG, "setting location name to "+location.getName());
             mEndPlace.setText(location.getName());
+            mEndPlace.clearFocus();
         }
+
+        //move the focus away from the text view
+        getActivity().findViewById(R.id.editTexts).requestFocus();
     }
 
     //getters and setters
@@ -942,12 +946,12 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
         this.locationList = locationList;
     }
 
-    public String getStartLocationName() {
-        return startLocationName;
+    public Location getEndLocation() {
+        return endLocation;
     }
 
-    public String getEndLocationName() {
-        return endLocationName;
+    public Location getStartLocation() {
+        return startLocation;
     }
 
     /**

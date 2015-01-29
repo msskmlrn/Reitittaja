@@ -59,19 +59,23 @@ public class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements F
 
                 FilterResults filterResults = new FilterResults();
                 if (constraint != null) {
-                    // Retrieve the autocomplete results.
+                    // Retrieve the autocomplete results
                     Log.d(LOG_TAG, "Charconstraintsequence " + constraint);
 
                     //if the text in the search field matches the previously selected value, then there
                     //is no need to perform the search again, For example, if the start location
                     //has been chosen from the results and then the screen is rotated that
                     //causes the adapter to called again with the chosen value which is unneeded.
-                    if (journeyPlannerFragment.getStartLocationName() != null &&
-                            constraint.toString().equals(journeyPlannerFragment.getStartLocationName())) {
+                    if (journeyPlannerFragment.getStartLocation() != null &&
+                            journeyPlannerFragment.getStartLocation().toString() != null &&
+                            constraint.toString().equals(journeyPlannerFragment.getStartLocation().toString())) {
+                        Log.d(LOG_TAG, "returning, no search for start");
                         return filterResults;
                     }
-                    else if (journeyPlannerFragment.getEndLocationName() != null &&
-                            constraint.toString().equals(journeyPlannerFragment.getEndLocationName())) {
+                    else if (journeyPlannerFragment.getEndLocation() != null &&
+                            journeyPlannerFragment.getEndLocation().toString() != null &&
+                            constraint.toString().equals(journeyPlannerFragment.getEndLocation().toString())) {
+                        Log.d(LOG_TAG, "returning, no search for end");
                         return filterResults;
                     }
                     //perform the search
