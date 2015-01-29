@@ -7,12 +7,14 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:focusableInTouchMode="true"
         android:orientation="vertical" >
 
         <TableLayout
+            android:id="@+id/editTexts"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:descendantFocusability="beforeDescendants"
+            android:focusableInTouchMode="true" >
 
             <TableRow>
                 <TextView
@@ -69,7 +71,6 @@
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:focusableInTouchMode="true"
             android:orientation="horizontal" >
 
             <TextView
