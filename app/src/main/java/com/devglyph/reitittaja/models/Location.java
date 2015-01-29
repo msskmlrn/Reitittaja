@@ -188,12 +188,21 @@ public class Location implements Parcelable {
 
     @Override
     public String toString() {
-        String result = getName() + " - " + getCity();
-        if (details.getPoiType() != null) {
-            result = result + " - " + details.getPoiType();
+        String result = "";
+        if (getName() != null) {
+            result =  getName();
         }
-        else if (details.getTransportTypeId() != 0) {
-            result = result + " - " + details.getTransportTypeId();
+        if (getCity() != null) {
+            result = result + " - " + getCity();
+        }
+
+        if (details != null) {
+            if (details.getPoiType() != null && !details.getPoiType().isEmpty()) {
+                result = result + " - " + details.getPoiType();
+            }
+            else if (details.getTransportTypeId() != 0) {
+                result = result + " - " + details.getTransportTypeId();
+            }
         }
 
         return result;
