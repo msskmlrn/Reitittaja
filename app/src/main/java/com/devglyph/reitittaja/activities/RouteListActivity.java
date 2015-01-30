@@ -2,7 +2,8 @@ package com.devglyph.reitittaja.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
+import android.view.MenuItem;
 
 import com.devglyph.reitittaja.R;
 import com.devglyph.reitittaja.fragments.JourneyPlannerFragment;
@@ -30,7 +31,8 @@ import java.util.ArrayList;
  * {@link com.devglyph.reitittaja.fragments.RouteListFragment.Callbacks} interface
  * to listen for item selections.
  */
-public class RouteListActivity extends FragmentActivity
+
+public class RouteListActivity extends ActionBarActivity
         implements RouteListFragment.Callbacks {
 
     /**
@@ -45,6 +47,9 @@ public class RouteListActivity extends FragmentActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_route_list);
+
+        // Show the Up button in the action bar.
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent intent = getIntent();
 
@@ -93,5 +98,16 @@ public class RouteListActivity extends FragmentActivity
 
             startActivity(detailIntent);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            //go back to the journey planner
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
