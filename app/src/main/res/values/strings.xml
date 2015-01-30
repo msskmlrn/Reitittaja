@@ -56,4 +56,14 @@
     <string name="new_favorite_dialog_header">Save as favorite</string>
 
 
+    <string name="walk_speed_slow">slow (40 m/min)</string>
+    <string name="walk_speed_normal">normal (70 m/min)</string>
+    <string name="walk_speed_fast">fast (100 m/min)</string>
+    <string name="walk_speed_running">running (200 m/min)</string>
+
+    <string name="route_type_default">default</string>
+    <string name="route_type_fastest">fastest</string>
+    <string name="route_type_least_transfers">least transfers</string>
+    <string name="route_type_least_walking">least walking</string>
+
 </resources>

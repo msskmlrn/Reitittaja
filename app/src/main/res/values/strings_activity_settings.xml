@@ -1,0 +1,45 @@
+<resources>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">General</string>
+
+    <string name="pref_title_change_margin">Change margin</string>
+    <string name="pref_change_margin_default_value">3</string>
+
+    <string name="pref_title_select_walking_speed">Select walking speed</string>
+    <string name="pref_walking_speed_default_value">70</string>
+
+    <string-array name="pref_walking_speeds_list">
+        <item>@string/walk_speed_slow</item>
+        <item>@string/walk_speed_normal</item>
+        <item>@string/walk_speed_fast</item>
+        <item>@string/walk_speed_running</item>
+    </string-array>
+    <string-array name="pref_walking_speeds_list_values">
+        <item>40</item>
+        <item>70</item>
+        <item>100</item>
+        <item>200</item>
+    </string-array>
+
+
+    <string name="pref_title_select_route_type">Select route type</string>
+    <string name="pref_route_type_default_value">0</string>
+    <string-array name="pref_route_type_list">
+        <item>@string/route_type_default</item>
+        <item>@string/route_type_fastest</item>
+        <item>@string/route_type_least_transfers</item>
+        <item>@string/route_type_least_walking</item>
+    </string-array>
+    <string-array name="pref_route_type_list_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+
+</resources>
