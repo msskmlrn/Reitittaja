@@ -238,11 +238,11 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
      */
     private void initializeTextFields() {
         mStartPlace = (AutoCompleteTextView) mView.findViewById(R.id.start_place);
-        mStartPlace.setAdapter(new PlacesAutoCompleteAdapter(this, getActivity(), R.layout.list_item));
+        mStartPlace.setAdapter(new PlacesAutoCompleteAdapter(this, getActivity(), R.layout.list_item, R.id.autocomplete_list_item));
         createOnItemClickListener(mStartPlace);
 
         mEndPlace = (AutoCompleteTextView) mView.findViewById(R.id.end_place);
-        mEndPlace.setAdapter(new PlacesAutoCompleteAdapter(this, getActivity(), R.layout.list_item));
+        mEndPlace.setAdapter(new PlacesAutoCompleteAdapter(this, getActivity(), R.layout.list_item, R.id.autocomplete_list_item));
         createOnItemClickListener(mEndPlace);
     }
 

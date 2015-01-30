@@ -31,8 +31,9 @@ public class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements F
     private ArrayList<String> resultList;
     private Context mContext;
 
-    public PlacesAutoCompleteAdapter(JourneyPlannerFragment journeyPlannerFragment, Context context, int textViewResourceId) {
-        super(context, textViewResourceId);
+    public PlacesAutoCompleteAdapter(JourneyPlannerFragment journeyPlannerFragment, Context context, int resource, int textViewResourceId) {
+        super(context, resource, textViewResourceId);
+
         Log.d(LOG_TAG, "constructor");
 
         this.journeyPlannerFragment = journeyPlannerFragment;
