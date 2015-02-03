@@ -29,6 +29,11 @@ public class RouteLocation implements Parcelable {
         this.coordinates = coordinates;
     }
 
+    public RouteLocation(String name, Coordinates coordinates) {
+        this.name = name;
+        this.coordinates = coordinates;
+    }
+
     /**
      * Getter for arrival time
      * @return arrival time

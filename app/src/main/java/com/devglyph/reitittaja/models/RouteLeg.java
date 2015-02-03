@@ -18,6 +18,7 @@ public class RouteLeg implements Parcelable {
     private String lineCode;
     private ArrayList<RouteLocation> locations;
     private ArrayList<Coordinates> shape;
+    private String surfaceType;
 
     //ids for the transportation modes
     public static final int HELSINKI_BUS = 1;
@@ -59,6 +60,15 @@ public class RouteLeg implements Parcelable {
         this.duration = duration;
         this.type = type;
         this.lineCode = lineCode;
+        this.locations = locations;
+        this.shape = shape;
+    }
+
+    public RouteLeg(double length, String surfaceType, ArrayList<RouteLocation> locations,
+                    ArrayList<Coordinates> shape) {
+
+        this.length = length;
+        this.surfaceType = surfaceType;
         this.locations = locations;
         this.shape = shape;
     }
@@ -175,6 +185,14 @@ public class RouteLeg implements Parcelable {
         return this.getLocations().get(this.getLocations().size() - 1);
     }
 
+    public String getSurfaceType() {
+        return surfaceType;
+    }
+
+    public void setSurfaceType(String surfaceType) {
+        this.surfaceType = surfaceType;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -188,6 +206,7 @@ public class RouteLeg implements Parcelable {
         dest.writeString(lineCode);
         dest.writeTypedList(locations);
         dest.writeTypedList(shape);
+        dest.writeString(surfaceType);
     }
 
     public static final Parcelable.Creator<RouteLeg> CREATOR = new Parcelable.Creator<RouteLeg>() {
@@ -209,5 +228,6 @@ public class RouteLeg implements Parcelable {
         in.readTypedList(locations, RouteLocation.CREATOR);
         shape = new ArrayList<Coordinates>();
         in.readTypedList(shape, Coordinates.CREATOR);
+        surfaceType = in.readString();
     }
 }
