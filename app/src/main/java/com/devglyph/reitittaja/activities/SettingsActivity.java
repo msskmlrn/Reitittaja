@@ -62,9 +62,9 @@ public class SettingsActivity extends PreferenceActivity {
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences to
         // their values. When their values change, their summaries are updated
         // to reflect the new value, per the Android Design guidelines.
-        bindPreferenceSummaryToValue(findPreference("change_margin"));
-        bindPreferenceSummaryToValue(findPreference("walking_speed"));
-        bindPreferenceSummaryToValue(findPreference("route_type"));
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_change_margin)));
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_walking_speed)));
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_route_type)));
     }
 
     /**
@@ -175,9 +175,9 @@ public class SettingsActivity extends PreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            bindPreferenceSummaryToValue(findPreference("change_margin"));
-            bindPreferenceSummaryToValue(findPreference("walking_speed"));
-            bindPreferenceSummaryToValue(findPreference("route_type"));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_change_margin)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_walking_speed)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_route_type)));
         }
     }
 }
