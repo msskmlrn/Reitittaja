@@ -9,7 +9,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -745,12 +747,43 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
         nameValuePairs.add(new BasicNameValuePair(SHOW_PARAM, "5"));
         nameValuePairs.add(new BasicNameValuePair(DETAIL_PARAM, "full"));
 
-        //TODO implement walk speed, change margin and optimize choices
+        nameValuePairs.add(new BasicNameValuePair(OPTIMIZE_PARAM, getRouteType()));
+        nameValuePairs.add(new BasicNameValuePair(CHANGE_MARGIN_PARAM, getChangeMargin()));
+        nameValuePairs.add(new BasicNameValuePair(WALK_SPEED_PARAM, getWalkSpeed()));
 
         String paramString = URLEncodedUtils.format(nameValuePairs, "utf-8");
 
         //launch the route search task
         startRouteSearchService(QUERY_BASE_URL + paramString);
+    }
+
+    /**
+     * Get the route type parameter from the shared preferences
+     * @return
+     */
+    private String getRouteType() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        return prefs.getString(this.getString(R.string.pref_key_route_type),
+                this.getString(R.string.pref_route_type_default_value));
+    }
+
+    /**
+     * Get the change margin parameter from the shared preferences
+     * @return
+     */
+    private String getChangeMargin() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        return prefs.getString(this.getString(R.string.pref_key_change_margin),
+                this.getString(R.string.pref_change_margin_default_value));
+    }
+
+    /**
+     * Get the walk speed parameter from the shared preferences
+     */
+    private String getWalkSpeed() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        return prefs.getString(this.getString(R.string.pref_key_walking_speed),
+                this.getString(R.string.pref_walking_speed_default_value));
     }
 
     /**
