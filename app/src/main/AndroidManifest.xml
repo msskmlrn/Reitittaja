@@ -52,7 +52,6 @@
             android:name=".activities.MapsActivity"
             android:label="@string/title_activity_maps" >
         </activity>
-
         <activity
             android:name=".activities.SettingsActivity"
             android:label="@string/title_activity_settings"
@@ -68,6 +67,11 @@
         </service>
         <service
             android:name=".services.ReverseGeocodeService"
+            android:exported="false" >
+        </service>
+
+        <service
+            android:name=".services.CycleRouteSearchService"
             android:exported="false" >
         </service>
 
