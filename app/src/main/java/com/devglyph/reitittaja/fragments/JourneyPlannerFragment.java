@@ -40,6 +40,7 @@ import com.devglyph.reitittaja.activities.RouteListActivity;
 import com.devglyph.reitittaja.adapters.PlacesAutoCompleteAdapter;
 import com.devglyph.reitittaja.models.Location;
 import com.devglyph.reitittaja.models.Route;
+import com.devglyph.reitittaja.services.CycleRouteSearchService;
 import com.devglyph.reitittaja.services.ReverseGeocodeService;
 import com.devglyph.reitittaja.services.RouteSearchService;
 
@@ -719,7 +720,6 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
         final String DETAIL_PARAM = "detail";
 
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-        nameValuePairs.add(new BasicNameValuePair(QUERY_PARAM, "route"));
         nameValuePairs.add(new BasicNameValuePair(FORMAT_PARAM, "json"));
         nameValuePairs.add(new BasicNameValuePair(USERNAME_PARAM, getString(R.string.reittiopas_username)));
         nameValuePairs.add(new BasicNameValuePair(PASSWORD_PARAM, getString(R.string.reittiopas_password)));
@@ -732,29 +732,64 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
         nameValuePairs.add(new BasicNameValuePair(TO_PARAM, endCoords));
 
         String modes = getTransportTypes();
+        //check if the search is for a cycling route
+        boolean isCycling = false;
 
-        nameValuePairs.add(new BasicNameValuePair(TRANSPORT_TYPES_PARAM, modes));
-        if (modes.equals("cycle")) {
-            //TODO cycle route search
-            String message = "Cycle route search not supported yet";
-            Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-            return;
+        long startTime = getTimeButtonTime().getTime().getTime();
+
+        if (modes != null && modes.contains("cycle")) {
+            isCycling = true;
+            nameValuePairs.add(new BasicNameValuePair(QUERY_PARAM, "cycling"));
         }
+        else { //the following parameters apply only to non cycling route searches
+            nameValuePairs.add(new BasicNameValuePair(QUERY_PARAM, "route"));
+            nameValuePairs.add(new BasicNameValuePair(TRANSPORT_TYPES_PARAM, modes));
+            nameValuePairs.add(new BasicNameValuePair(DATE_PARAM, getDateParameter()));
+            nameValuePairs.add(new BasicNameValuePair(TIME_PARAM, getTimeParameter()));
+            nameValuePairs.add(new BasicNameValuePair(TIMETYPE_PARAM, getTimeType()));
+            nameValuePairs.add(new BasicNameValuePair(SHOW_PARAM, "5"));
+            nameValuePairs.add(new BasicNameValuePair(DETAIL_PARAM, "full"));
 
-        nameValuePairs.add(new BasicNameValuePair(DATE_PARAM, getDateParameter()));
-        nameValuePairs.add(new BasicNameValuePair(TIME_PARAM, getTimeParameter()));
-        nameValuePairs.add(new BasicNameValuePair(TIMETYPE_PARAM, getTimeType()));
-        nameValuePairs.add(new BasicNameValuePair(SHOW_PARAM, "5"));
-        nameValuePairs.add(new BasicNameValuePair(DETAIL_PARAM, "full"));
-
-        nameValuePairs.add(new BasicNameValuePair(OPTIMIZE_PARAM, getRouteType()));
-        nameValuePairs.add(new BasicNameValuePair(CHANGE_MARGIN_PARAM, getChangeMargin()));
-        nameValuePairs.add(new BasicNameValuePair(WALK_SPEED_PARAM, getWalkSpeed()));
+            nameValuePairs.add(new BasicNameValuePair(OPTIMIZE_PARAM, getRouteType()));
+            nameValuePairs.add(new BasicNameValuePair(CHANGE_MARGIN_PARAM, getChangeMargin()));
+            nameValuePairs.add(new BasicNameValuePair(WALK_SPEED_PARAM, getWalkSpeed()));
+        }
 
         String paramString = URLEncodedUtils.format(nameValuePairs, "utf-8");
 
         //launch the route search task
-        startRouteSearchService(QUERY_BASE_URL + paramString);
+        startRouteSearchService(QUERY_BASE_URL + paramString, isCycling, startTime);
+    }
+
+
+    /**
+     * Try to start the route search service
+     * @param query search parameters
+     * @param isCycling if a cycling route search is to be performed
+     * @param startTime the time that was set as the start time of the route
+     */
+    private void startRouteSearchService(String query, boolean isCycling, long startTime) {
+        //try to start the route search task
+        try {
+            URL url = new URL(query);
+            Log.d(LOG_TAG, "launching route search "+url);
+
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage("Searching routes");
+            progressDialog.show();
+
+            //check which service to start based on if the search is for cycling route
+            //other routes
+            if (isCycling) {
+                CycleRouteSearchService.startCycleRouteSearch(getActivity(), url.toString(), startTime);
+            }
+            else {
+                RouteSearchService.startRouteSearch(getActivity(), url.toString());
+            }
+        }
+        catch (MalformedURLException ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
@@ -786,26 +821,6 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
                 this.getString(R.string.pref_walking_speed_default_value));
     }
 
-    /**
-     * Try to start the route search service
-     * @param query search parameters
-     */
-    private void startRouteSearchService(String query) {
-        //try to start the route search task
-        try {
-            URL url = new URL(query);
-            Log.d(LOG_TAG, "launching route search "+url);
-
-            progressDialog = new ProgressDialog(getActivity());
-            progressDialog.setMessage("Searching routes");
-            progressDialog.show();
-
-            RouteSearchService.startRouteSearch(getActivity(), url.toString());
-        }
-        catch (MalformedURLException ex) {
-            ex.printStackTrace();
-        }
-    }
 
     /**
      * Format the chosen query type for the search request
@@ -854,24 +869,29 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
     }
 
     /**
-     * Format the chosen time for the search query
-     * @return a string formatted with the time information
+     * Get the chosen time
+     * @return a Calendar set to the chosen time
      */
-    private String getTimeParameter() {
-        Calendar cal;
-
+    private Calendar getTimeButtonTime() {
         //if the date parameter has not been changed from "now", then use the current time
-        if (mMinutes == -1 || mHours == -1) {
-            cal = Calendar.getInstance();
-        }
-        else { //parse the chosen time
-            cal = Calendar.getInstance();
+        Calendar cal = Calendar.getInstance();
+
+        if (mMinutes != -1 && mHours != -1) {
+            //parse the chosen time
             cal.set(Calendar.HOUR_OF_DAY, mHours);
             cal.set(Calendar.MINUTE, mMinutes);
         }
 
+        return cal;
+    }
+
+    /**
+     * Format the chosen time for the search query
+     * @return a string formatted with the time information
+     */
+    private String getTimeParameter() {
         //format the time to hhmm
-        Date dTime = cal.getTime();
+        Date dTime = getTimeButtonTime().getTime();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HHmm");
         String time = simpleDateFormat.format(dTime);
 
@@ -889,42 +909,42 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
 
         CheckBox box = (CheckBox) mView.findViewById(R.id.checkBoxBus);
         if (box.isChecked()) {
-            modes = modes + R.string.bus;
+            modes = modes + this.getString(R.string.bus);
         }
 
         box = (CheckBox) mView.findViewById(R.id.checkBoxTrain);
         if (box.isChecked()) {
-            modes = modes + "|" + R.string.train;
+            modes = modes + "|" + this.getString(R.string.train);
         }
 
         box = (CheckBox) mView.findViewById(R.id.checkBoxMetro);
         if (box.isChecked()) {
-            modes = modes + "|" + R.string.metro;
+            modes = modes + "|" + this.getString(R.string.metro);
         }
 
         box = (CheckBox) mView.findViewById(R.id.checkBoxTram);
         if (box.isChecked()) {
-            modes = modes + "|" + R.string.tram;
+            modes = modes + "|" + this.getString(R.string.tram);
         }
 
         box = (CheckBox) mView.findViewById(R.id.checkBoxUline);
         if (box.isChecked()) {
-            modes = modes + "|" + R.string.uline;
+            modes = modes + "|" + this.getString(R.string.uline);
         }
 
         box = (CheckBox) mView.findViewById(R.id.checkBoxService);
         if (box.isChecked()) {
-            modes = modes + "|" + R.string.service;
+            modes = modes + "|" + this.getString(R.string.service);
         }
 
         box = (CheckBox) mView.findViewById(R.id.checkBoxOnlyWalking);
         if (box.isChecked()) {
-            return "" + R.string.walk;
+            return "" + this.getString(R.string.walk);
         }
 
         box = (CheckBox) mView.findViewById(R.id.checkBoxOnlyCycling);
         if (box.isChecked()) {
-            return "" + R.string.cycle;
+            return "" + this.getString(R.string.cycle);
         }
 
         return modes;
