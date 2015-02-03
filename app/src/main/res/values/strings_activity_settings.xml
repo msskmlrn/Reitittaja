@@ -12,7 +12,7 @@
     <!-- Default values -->
     <string name="pref_change_margin_default_value">3</string>
     <string name="pref_walking_speed_default_value">70</string>
-    <string name="pref_route_type_default_value">0</string>
+    <string name="pref_route_type_default_value">default</string>
 
     <!-- Key names used for saving values to sharedPreferences -->
     <string name="pref_key_change_margin">change_margin</string>
@@ -40,10 +40,10 @@
         <item>@string/route_type_least_walking</item>
     </string-array>
     <string-array name="pref_route_type_list_values">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
+        <item>default</item>
+        <item>fastest</item>
+        <item>least_transfers</item>
+        <item>least_walking</item>
     </string-array>
 
 </resources>
