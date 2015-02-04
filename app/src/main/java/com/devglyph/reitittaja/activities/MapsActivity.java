@@ -13,6 +13,7 @@ import com.devglyph.reitittaja.models.RouteLeg;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -81,6 +82,7 @@ public class MapsActivity extends FragmentActivity {
             if (mMap != null) {
                 setUpMap();
             }
+
         }
     }
 
@@ -103,6 +105,20 @@ public class MapsActivity extends FragmentActivity {
 
         //zoom the camera to either the start of the route or start of the clicked leg
         zoomCamera(zoomPoint);
+
+
+        //adjust map options
+        mMap.setMyLocationEnabled(true);
+
+        UiSettings settings = mMap.getUiSettings();
+
+        settings.setCompassEnabled(true);
+        settings.setMyLocationButtonEnabled(true);
+        settings.setZoomControlsEnabled(true);
+        settings.setRotateGesturesEnabled(false);
+        settings.setScrollGesturesEnabled(true);
+        settings.setTiltGesturesEnabled(false);
+        settings.setZoomGesturesEnabled(true);
     }
 
     private void createRoutePolyline() {
