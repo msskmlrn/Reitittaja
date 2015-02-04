@@ -148,6 +148,17 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     @Override
+    public void onSwapLocations() {
+        Log.d(LOG_TAG, "onSwapLocations");
+        //get a reference to the fragment and swap the start and end locations
+        JourneyPlannerFragment fragment = (JourneyPlannerFragment) getSupportFragmentManager().findFragmentById(R.id.container);
+        if (fragment != null) {
+            Log.d(LOG_TAG, "onSwapLocations, swapping");
+            fragment.swapLocations();
+        }
+    }
+
+    @Override
     public void onFavoriteChosen(Location location, boolean startPlace) {
         Log.d(LOG_TAG, "onFavoriteChosen");
         Log.d(LOG_TAG, "onFavoriteChosen " + location.getName());
@@ -219,5 +230,4 @@ public class MainActivity extends ActionBarActivity implements
                     getArguments().getInt(ARG_SECTION_NUMBER));
         }
     }
-
 }
