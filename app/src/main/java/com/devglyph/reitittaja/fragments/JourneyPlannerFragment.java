@@ -43,6 +43,9 @@ import com.devglyph.reitittaja.models.Route;
 import com.devglyph.reitittaja.services.CycleRouteSearchService;
 import com.devglyph.reitittaja.services.ReverseGeocodeService;
 import com.devglyph.reitittaja.services.RouteSearchService;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -65,7 +68,8 @@ import java.util.List;
  * Use the {@link JourneyPlannerFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFragment.OnFavoriteChosenListener {
+public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFragment.OnFavoriteChosenListener,
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private static final String SECTION_PARAM = "param1";
 
@@ -107,6 +111,16 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
     private ArrayList<Location> locationList = new ArrayList<>();
 
     /**
+     * Provides the entry point to Google Play services.
+     */
+    protected GoogleApiClient mGoogleApiClient;
+
+    /**
+     * Represents a geographical location.
+     */
+    protected android.location.Location mLastLocation;
+
+    /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
@@ -143,6 +157,14 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
 
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(reverseGeocodeReceiver,
                 reverseGeocodeFilter);
+
+        buildGoogleApiClient();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
     }
 
     @Override
@@ -159,6 +181,54 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
+
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+    }
+
+    /**
+     * Builds a GoogleApiClient. Uses the addApi() method to request the LocationServices API.
+     */
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
+
+    private void requestCurrentLocation() {
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+    }
+
+    /**
+     * Runs when a GoogleApiClient object successfully connects.
+     */
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        //Gets the best and most recent location currently available, which may be null
+        // in rare cases when a location is not available.
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (mLastLocation != null) {
+            Log.d(LOG_TAG, "location "+ mLastLocation.getLatitude() + ", " + mLastLocation.getLongitude());
+        } else {
+            Toast.makeText(getActivity(), "Location error", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        Log.i(LOG_TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
+    }
+
+
+    @Override
+    public void onConnectionSuspended(int cause) {
+        // The connection to Google Play services was lost for some reason. We call connect() to
+        // attempt to re-establish the connection.
+        Log.i(LOG_TAG, "Connection suspended");
+        mGoogleApiClient.connect();
     }
 
     @Override
@@ -463,14 +533,47 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
                 if (v.getId() == R.id.button_search) {
 
                     //validate that the start and end location have been chosen
-                    if (startLocation == null) {
+                    //or that the current location is being used as the start/end point
+                    if (startLocation == null && (!mStartPlace.getHint().
+                            equals(getString(R.string.journey_planner_current_location)))) {
                         String message = "Choose a start location";
                         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
                         return;
-                    } else if (endLocation == null) {
+                    } else if (endLocation == null && (!mEndPlace.getHint().
+                            equals(getString(R.string.journey_planner_current_location)))) {
                         String message = "Choose an end location";
                         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
                         return;
+                    }
+
+                    //current location is to be used
+                    if ((mStartPlace != null && mStartPlace.getHint().equals
+                            (getString(R.string.journey_planner_current_location))) ||
+                            (mEndPlace != null && mEndPlace.getHint().equals
+                                    (getString(R.string.journey_planner_current_location)))) {
+
+                        //get current location
+                        requestCurrentLocation();
+
+                        if (mLastLocation == null) {
+                            String message = "Error tracking current location, please try again";
+                            Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        //set the start/end location to correspond with the current location
+                        if (mStartPlace.getHint().equals
+                                (getString(R.string.journey_planner_current_location))) {
+
+                            startLocation = new Location("", "", mLastLocation.getLatitude(),
+                                    mLastLocation.getLongitude(), false);
+                        }
+                        else if (mEndPlace.getHint().equals
+                                (getString(R.string.journey_planner_current_location))) {
+
+                            endLocation = new Location("", "", mLastLocation.getLatitude(),
+                                    mLastLocation.getLongitude(), false);
+                        }
                     }
 
                     prepareSearchQuery();

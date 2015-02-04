@@ -29,7 +29,8 @@ public class MainActivity extends ActionBarActivity implements
         JourneyPlannerFragment.OnFragmentInteractionListener,
         FavoritesFragment.OnFragmentInteractionListener,
         FavoriteDialogFragment.OnFavoriteChosenListener,
-        SaveToFavoritesFragment.OnFavoriteSavedListener{
+        SaveToFavoritesFragment.OnFavoriteSavedListener {
+
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
 
@@ -42,6 +43,8 @@ public class MainActivity extends ActionBarActivity implements
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,6 +139,8 @@ public class MainActivity extends ActionBarActivity implements
 
         return super.onOptionsItemSelected(item);
     }
+
+
 
     @Override
     public void onFragmentInteraction(String string) {
