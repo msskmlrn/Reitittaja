@@ -145,6 +145,14 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
         Log.d(LOG_TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
+        buildGoogleApiClient();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+
         //create intent filters and register receivers
         IntentFilter routeSearchFilter = new IntentFilter();
         routeSearchFilter.addAction(RouteSearchService.ROUTE_SEARCH_DONE);
@@ -157,14 +165,6 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
 
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(reverseGeocodeReceiver,
                 reverseGeocodeFilter);
-
-        buildGoogleApiClient();
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mGoogleApiClient.connect();
     }
 
     @Override
@@ -546,40 +546,50 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
                         return;
                     }
 
-                    //current location is to be used
-                    if ((mStartPlace != null && mStartPlace.getHint().equals
-                            (getString(R.string.journey_planner_current_location))) ||
-                            (mEndPlace != null && mEndPlace.getHint().equals
-                                    (getString(R.string.journey_planner_current_location)))) {
+                    //set the start/end location to correspond with the current location
+                    if (mStartPlace != null && mStartPlace.getText() != null
+                            && mStartPlace.getText().toString().isEmpty()
+                            && mStartPlace.getHint().equals
+                            (getString(R.string.journey_planner_current_location))) {
 
-                        //get current location
-                        requestCurrentLocation();
-
-                        if (mLastLocation == null) {
-                            String message = "Error tracking current location, please try again";
-                            Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+                        //check that the current location has been obtained
+                        if (!checkCurrentLocationStatus()) {
                             return;
                         }
 
-                        //set the start/end location to correspond with the current location
-                        if (mStartPlace.getHint().equals
-                                (getString(R.string.journey_planner_current_location))) {
-
-                            startLocation = new Location("", "", mLastLocation.getLatitude(),
-                                    mLastLocation.getLongitude(), false);
-                        }
-                        else if (mEndPlace.getHint().equals
-                                (getString(R.string.journey_planner_current_location))) {
-
-                            endLocation = new Location("", "", mLastLocation.getLatitude(),
-                                    mLastLocation.getLongitude(), false);
-                        }
+                        startLocation = new Location("", "", mLastLocation.getLatitude(),
+                                mLastLocation.getLongitude(), false);
                     }
+                    if (mEndPlace != null && mEndPlace.getText() != null
+                            && mEndPlace.getText().toString().isEmpty()
+                            && mEndPlace.getHint().equals
+                            (getString(R.string.journey_planner_current_location))) {
+
+                        //check that the current location has been obtained
+                        if (!checkCurrentLocationStatus()) {
+                            return;
+                        }
+
+                        endLocation = new Location("", "", mLastLocation.getLatitude(),
+                                mLastLocation.getLongitude(), false);
+                    }
+
 
                     prepareSearchQuery();
                 }
             }
         });
+    }
+
+    private boolean checkCurrentLocationStatus() {
+        requestCurrentLocation();
+
+        if (mLastLocation == null) {
+            String message = "Error tracking current location, please try again";
+            Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -1075,6 +1085,11 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
         public void onFragmentInteraction(String string);
     }
 
+    /**
+     * Update the UI with the chosen favorite location's information
+     * @param location
+     * @param clickForStartPlace
+     */
     public void placeChosenFromFavorites(Location location, boolean clickForStartPlace) {
         Log.d(LOG_TAG, "placeChosenFromFavorites");
         if (clickForStartPlace) {
@@ -1090,6 +1105,44 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
 
         //move the focus away from the text view
         getActivity().findViewById(R.id.editTexts).requestFocus();
+    }
+
+    /**
+     * Swap the start place contents with the end place contents and vice versa
+     */
+    public void swapLocations() {
+        Location tempLocation = startLocation;
+        String tempName = mStartPlace.getText().toString();
+
+        //only add the current location hint to the end place if it is being shown on the start location row
+        if (mStartPlace.getText().toString().isEmpty()) {
+            mEndPlace.setHint(mStartPlace.getHint().toString());
+        }
+
+        startLocation = endLocation;
+        mStartPlace.setText(mEndPlace.getText().toString());
+
+        endLocation = tempLocation;
+        mEndPlace.setText(tempName);
+
+
+        Log.d(LOG_TAG, "after swapping");
+        if (mStartPlace.getText() != null) {
+            Log.d(LOG_TAG, "mStartPlace "+mStartPlace.getText().toString());
+        }
+        if (startLocation != null) {
+            Log.d(LOG_TAG, "startLocation "+startLocation.toString());
+        }
+
+
+        if (mEndPlace.getText() != null) {
+            Log.d(LOG_TAG, "mEndPlace "+mEndPlace.getText().toString());
+        }
+        if (endLocation != null) {
+            Log.d(LOG_TAG, "endlocation "+endLocation.toString());
+        }
+
+
     }
 
     //getters and setters

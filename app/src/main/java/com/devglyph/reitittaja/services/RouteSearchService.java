@@ -140,6 +140,7 @@ public class RouteSearchService extends IntentService {
     }
 
     private void notifyFinished(ArrayList<Route> routes) {
+        Log.d(LOG_TAG, "notifyFinished");
         Intent intent = new Intent(ROUTE_SEARCH_DONE);
         intent.putParcelableArrayListExtra("routes", routes);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
@@ -187,6 +188,7 @@ public class RouteSearchService extends IntentService {
             Log.e(LOG_TAG, "Cannot process JSON results", e);
         }
 
+        Log.d(LOG_TAG, "end of getRoutesFromJson");
         return routes;
     }
 
