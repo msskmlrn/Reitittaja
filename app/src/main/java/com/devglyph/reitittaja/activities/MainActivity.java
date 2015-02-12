@@ -133,6 +133,10 @@ public class MainActivity extends ActionBarActivity implements
             Intent i = new Intent(this, SettingsActivity.class);
             startActivity(i);
         }
+        else if (id == R.id.action_map) {
+            Intent i = new Intent(this, MapsActivity.class);
+            startActivity(i);
+        }
 
         return super.onOptionsItemSelected(item);
     }
