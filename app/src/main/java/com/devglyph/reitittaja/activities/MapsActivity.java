@@ -27,7 +27,7 @@ public class MapsActivity extends FragmentActivity {
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
     private Route mRoute;
-    private int mLegPosition;
+    private int mLegPosition = -1;
     private LatLng startLocation;
     private LatLng endLocation;
     private static int counter = 1;
