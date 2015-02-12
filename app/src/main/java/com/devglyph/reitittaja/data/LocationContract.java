@@ -21,11 +21,11 @@ public class LocationContract {
         // These indices are tied to LOCATION_COLUMNS.  If Location changes, these
         // must change.
         public static final int COLUMN_ID_INDEX = 0;
-        public static final int COLUMN_LOCATION_NAME_INDEX = 1;
-        public static final int COLUMN_LOCATION_DESCRIPTION_INDEX = 2;
-        public static final int COLUMN_COORD_LAT_INDEX = 3;
-        public static final int COLUMN_COORD_LONG_INDEX = 4;
-        public static final int COLUMN_FAVORITE_INDEX = 5;
+        public static final int COLUMN_FAVORITE_INDEX = 1;
+        public static final int COLUMN_LOCATION_NAME_INDEX = 2;
+        public static final int COLUMN_LOCATION_DESCRIPTION_INDEX = 3;
+        public static final int COLUMN_COORD_LAT_INDEX = 4;
+        public static final int COLUMN_COORD_LONG_INDEX = 5;
 
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_LOCATION).build();
@@ -39,6 +39,8 @@ public class LocationContract {
         public static final String TABLE_NAME = "location";
 
         //has the location been added to the favorites list
+        //1 = true
+        //0 = false
         public static final String COLUMN_FAVORITE = "favorite";
 
         //human readable name for the location parsed from the API information
