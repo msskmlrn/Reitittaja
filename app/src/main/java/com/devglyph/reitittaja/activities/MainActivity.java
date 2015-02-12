@@ -26,7 +26,6 @@ import com.devglyph.reitittaja.models.Location;
 
 public class MainActivity extends ActionBarActivity implements
         NavigationDrawerFragment.NavigationDrawerCallbacks,
-        JourneyPlannerFragment.OnFragmentInteractionListener,
         FavoritesFragment.OnFragmentInteractionListener,
         FavoriteDialogFragment.OnFavoriteChosenListener,
         SaveToFavoritesFragment.OnFavoriteSavedListener {
@@ -43,8 +42,6 @@ public class MainActivity extends ActionBarActivity implements
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

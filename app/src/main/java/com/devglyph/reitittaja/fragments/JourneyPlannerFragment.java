@@ -59,23 +59,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link JourneyPlannerFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link JourneyPlannerFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFragment.OnFavoriteChosenListener,
+public class JourneyPlannerFragment extends Fragment implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private static final String SECTION_PARAM = "param1";
 
     public  final static String SER_KEY = "com.devglyph.routes";
-
-    private OnFragmentInteractionListener mListener;
 
     private final String LOG_TAG = JourneyPlannerFragment.class.getSimpleName();
 
@@ -124,14 +113,13 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
+     * @param sectionNumberParam Section number
      * @return A new instance of fragment JourneyPlannerFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static JourneyPlannerFragment newInstance(int param1) {
+    public static JourneyPlannerFragment newInstance(int sectionNumberParam) {
         JourneyPlannerFragment fragment = new JourneyPlannerFragment();
         Bundle args = new Bundle();
-        args.putInt(SECTION_PARAM, param1);
+        args.putInt(SECTION_PARAM, sectionNumberParam);
         fragment.setArguments(args);
         return fragment;
     }
@@ -324,19 +312,11 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
         super.onAttach(activity);
         ((MainActivity) activity).onSectionAttached(
                 getArguments().getInt(SECTION_PARAM));
-
-        try {
-            mListener = (OnFragmentInteractionListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnFavoriteChosenListener");
-        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
     private void restoreInstanceState(Bundle savedInstanceState) {
@@ -581,6 +561,10 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
         });
     }
 
+    /**
+     * Check if the current location status can be found
+     * @return true if the location info is present, else false
+     */
     private boolean checkCurrentLocationStatus() {
         requestCurrentLocation();
 
@@ -668,15 +652,6 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
                 newFragment.show(getFragmentManager(), "datePicker");
             }
         });
-    }
-
-    @Override
-    public void onFavoriteChosen(Location location, boolean startPlace) {
-        Log.d(LOG_TAG, "onFavoriteSaved");
-        Log.d(LOG_TAG, "onFavoriteSaved " + location.getName());
-        Log.d(LOG_TAG, "onFavoriteSaved " + location.getDescription());
-        Log.d(LOG_TAG, "onFavoriteSaved " + location.getCoords().getLatitude() + ", " + location.getCoords().getLongitude());
-        Log.d(LOG_TAG, "onFavoriteSaved " + location.isFavorite());
     }
 
     /**
@@ -1061,28 +1036,6 @@ public class JourneyPlannerFragment extends Fragment implements FavoriteDialogFr
         }
 
         return modes;
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(String string) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(string);
-        }
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        public void onFragmentInteraction(String string);
     }
 
     /**
