@@ -11,6 +11,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,9 +43,6 @@ public class MainActivity extends ActionBarActivity implements
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
-
-
-    private Menu mMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +80,7 @@ public class MainActivity extends ActionBarActivity implements
             else {
                 return;
             }
+
             FragmentManager fragmentManager = getSupportFragmentManager();
             fragmentManager.beginTransaction()
                     .replace(R.id.container, fragment)
@@ -110,14 +109,12 @@ public class MainActivity extends ActionBarActivity implements
         actionBar.setTitle(mTitle);
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (!mNavigationDrawerFragment.isDrawerOpen()) {
             // Only show items in the action bar relevant to this screen
             // if the drawer is not showing. Otherwise, let the drawer
             // decide what to show in the action bar.
-            mMenu = menu;
             getMenuInflater().inflate(R.menu.main, menu);
             restoreActionBar();
             return true;
@@ -144,7 +141,6 @@ public class MainActivity extends ActionBarActivity implements
         else if (id == R.id.action_swap_location) {
             swapLocations();
         }
-
 
         return super.onOptionsItemSelected(item);
     }
@@ -217,6 +213,31 @@ public class MainActivity extends ActionBarActivity implements
         }
 
         public PlaceholderFragment() {
+        }
+
+        @Override
+        public void onActivityCreated(Bundle savedInstanceState) {
+            super.onActivityCreated(savedInstanceState);
+            // Indicate that this fragment would like to influence the set of actions in the action bar.
+            setHasOptionsMenu(true);
+        }
+
+        @Override
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+            //set the menu swap and map menu items invisible
+            if (menu != null) {
+                MenuItem item = menu.findItem(R.id.action_swap_location);
+                if (item != null) {
+                    item.setVisible(false);
+                }
+
+                item = menu.findItem(R.id.action_map);
+                if (item != null) {
+                    item.setVisible(false);
+                }
+            }
+            super.onCreateOptionsMenu(menu, inflater);
         }
 
         @Override
