@@ -43,6 +43,9 @@ public class MainActivity extends ActionBarActivity implements
      */
     private CharSequence mTitle;
 
+
+    private Menu mMenu;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,6 +117,7 @@ public class MainActivity extends ActionBarActivity implements
             // Only show items in the action bar relevant to this screen
             // if the drawer is not showing. Otherwise, let the drawer
             // decide what to show in the action bar.
+            mMenu = menu;
             getMenuInflater().inflate(R.menu.main, menu);
             restoreActionBar();
             return true;
@@ -137,28 +141,27 @@ public class MainActivity extends ActionBarActivity implements
             Intent i = new Intent(this, MapsActivity.class);
             startActivity(i);
         }
+        else if (id == R.id.action_swap_location) {
+            swapLocations();
+        }
+
 
         return super.onOptionsItemSelected(item);
     }
 
-
+    private void swapLocations() {
+        //get a reference to the fragment and swap the start and end locations
+        JourneyPlannerFragment fragment = (JourneyPlannerFragment) getSupportFragmentManager().findFragmentById(R.id.container);
+        if (fragment != null) {
+            Log.d(LOG_TAG, "swapLocations, swapping");
+            fragment.swapLocations();
+        }
+    }
 
     @Override
     public void onFragmentInteraction(String string) {
 
     }
-
-    @Override
-    public void onSwapLocations() {
-        Log.d(LOG_TAG, "onSwapLocations");
-        //get a reference to the fragment and swap the start and end locations
-        JourneyPlannerFragment fragment = (JourneyPlannerFragment) getSupportFragmentManager().findFragmentById(R.id.container);
-        if (fragment != null) {
-            Log.d(LOG_TAG, "onSwapLocations, swapping");
-            fragment.swapLocations();
-        }
-    }
-
     @Override
     public void onFavoriteChosen(Location location, boolean startPlace) {
         Log.d(LOG_TAG, "onFavoriteChosen");

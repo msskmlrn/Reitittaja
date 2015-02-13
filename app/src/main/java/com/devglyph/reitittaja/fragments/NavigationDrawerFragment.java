@@ -249,14 +249,6 @@ public class NavigationDrawerFragment extends Fragment {
             return true;
         }
 
-        if (item.getItemId() == R.id.action_swap_location) {
-            //Toast.makeText(getActivity(), "Swap.", Toast.LENGTH_SHORT).show();
-            if (mCallbacks != null) {
-                mCallbacks.onSwapLocations();
-            }
-            return true;
-        }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -283,6 +275,5 @@ public class NavigationDrawerFragment extends Fragment {
          * Called when an item in the navigation drawer is selected.
          */
         void onNavigationDrawerItemSelected(int position, boolean fromSavedInstanceState);
-        void onSwapLocations();
     }
 }
