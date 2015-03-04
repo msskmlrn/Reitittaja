@@ -210,7 +210,7 @@ public class SaveToFavoritesFragment extends DialogFragment {
     }
 
     /**
-     * Instert the location in to the database
+     * Insert the location in to the database
      * @param name
      * @param description
      * @param lat
@@ -234,6 +234,7 @@ public class SaveToFavoritesFragment extends DialogFragment {
                 .insert(LocationContract.LocationEntry.CONTENT_URI, locationValues);
 
         Log.d(LOG_TAG, "inserting location");
+        Log.d(LOG_TAG, "favorite value "+favoriteValue);
 
         //create a location object and call interface method
         Location location = new Location(name, description, lat, lon, true);

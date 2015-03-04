@@ -131,7 +131,7 @@ public class ReverseGeocodeService extends IntentService {
 
             return cursor.getLong(locationIdIndex);
         } else {
-            int favoriteValue = favorite == true ? 1 : 0;
+            int favoriteValue = favorite ? 1 : 0;
 
             if (description == null || description.isEmpty()) {
                 description = "-";
@@ -148,6 +148,7 @@ public class ReverseGeocodeService extends IntentService {
                     .insert(LocationContract.LocationEntry.CONTENT_URI, locationValues);
 
             Log.d(LOG_TAG, "inserting location");
+            Log.d(LOG_TAG, "favorite value "+favoriteValue);
 
             return ContentUris.parseId(locationInsertUri);
         }
