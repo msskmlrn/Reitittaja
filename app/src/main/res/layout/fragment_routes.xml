@@ -42,6 +42,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         style="@style/RouteListStyle"
-        android:divider="@null" />
+        android:divider="@null"
+        android:dividerHeight="10dp"/>
 
 </LinearLayout>
