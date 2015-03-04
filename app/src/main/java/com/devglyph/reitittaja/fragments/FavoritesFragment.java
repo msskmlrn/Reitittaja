@@ -10,6 +10,9 @@ import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -86,6 +89,8 @@ public class FavoritesFragment extends Fragment implements AbsListView.OnItemCli
             mParam1 = getArguments().getInt(ARG_PARAM1);
         }
 
+        setHasOptionsMenu(true);
+
         // TODO: Change Adapter to display your content
         //mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
         //        android.R.layout.simple_list_item_1, android.R.id.text1, DummyContent.ITEMS);
@@ -137,6 +142,24 @@ public class FavoritesFragment extends Fragment implements AbsListView.OnItemCli
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+        //set the menu swap and map menu items invisible
+        if (menu != null) {
+            MenuItem item = menu.findItem(R.id.action_swap_location);
+            if (item != null) {
+                item.setVisible(false);
+            }
+
+            item = menu.findItem(R.id.action_map);
+            if (item != null) {
+                item.setVisible(false);
+            }
+        }
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
 
