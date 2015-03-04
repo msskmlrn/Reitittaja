@@ -107,7 +107,7 @@ public class ReverseGeocodeService extends IntentService {
     }
 
     /**
-     * Helper method to handle insertion of a new location in the weather database.
+     * Helper method to handle insertion of a new location in the database.
      *
      * @param lat the latitude of the city
      * @param lon the longitude of the city
@@ -189,9 +189,7 @@ public class ReverseGeocodeService extends IntentService {
 
             String line;
             while ((line = reader.readLine()) != null) {
-                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                // But it does make debugging a *lot* easier if you print out the completed
-                // buffer for debugging.
+                //add new line for debugging
                 buffer.append(line + "\n");
             }
 
@@ -203,8 +201,6 @@ public class ReverseGeocodeService extends IntentService {
             Log.d(LOG_TAG, "locations " + locationJsonStr);
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
-            // If the code didn't successfully get the weather data, there's no point in attempting
-            // to parse it.
             return null;
         } finally {
             if (urlConnection != null) {

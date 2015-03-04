@@ -105,9 +105,7 @@ public class RouteSearchService extends IntentService {
 
             String line;
             while ((line = reader.readLine()) != null) {
-                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                // But it does make debugging a *lot* easier if you print out the completed
-                // buffer for debugging.
+                //add new line for debugging
                 buffer.append(line + "\n");
             }
 
@@ -119,8 +117,6 @@ public class RouteSearchService extends IntentService {
             Log.d(LOG_TAG, "routes " + routesJsonStr);
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
-            // If the code didn't successfully get the weather data, there's no point in attempting
-            // to parse it.
             return;
         } finally {
             if (urlConnection != null) {
