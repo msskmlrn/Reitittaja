@@ -514,13 +514,13 @@ public class JourneyPlannerFragment extends Fragment implements
 
                     //validate that the start and end location have been chosen
                     //or that the current location is being used as the start/end point
-                    if (startLocation == null && (!mStartPlace.getHint().
-                            equals(getString(R.string.journey_planner_current_location)))) {
+                    if (startLocation == null && (mStartPlace.getHint() == null ||
+                            !mStartPlace.getHint().equals(getString(R.string.journey_planner_current_location)))) {
                         String message = "Choose a start location";
                         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
                         return;
-                    } else if (endLocation == null && (!mEndPlace.getHint().
-                            equals(getString(R.string.journey_planner_current_location)))) {
+                    } if (endLocation == null && (mEndPlace.getHint() == null ||
+                            !mEndPlace.getHint().equals(getString(R.string.journey_planner_current_location)))) {
                         String message = "Choose an end location";
                         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
                         return;
