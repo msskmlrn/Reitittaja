@@ -250,8 +250,13 @@ public class FavoriteDialogFragment extends DialogFragment implements AdapterVie
                 LocationContract.LocationEntry.COLUMN_COORD_LONG,
                 LocationContract.LocationEntry.COLUMN_FAVORITE};
 
+        //get only favorite locations
         CursorLoader cursorLoader = new CursorLoader(getActivity(),
-                LocationContract.LocationEntry.CONTENT_URI, projection, null, null, null);
+                LocationContract.LocationEntry.CONTENT_URI,
+                projection,
+                LocationContract.LocationEntry.COLUMN_FAVORITE + " = ?", // cols for "where" clause
+                new String[]{"1"}, // values for "where" clause
+                null);
         return cursorLoader;
     }
 
