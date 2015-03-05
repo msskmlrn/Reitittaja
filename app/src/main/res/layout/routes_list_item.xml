@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:focusable="false" >
+
+        <TableLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:stretchColumns="*" >
+
+            <TableRow>
+
+                <TextView
+                    android:id="@+id/text_s_st_time"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:layout_weight="1"
+                    android:focusable="false"
+                    android:gravity="left"
+                    android:textSize="14sp"
+                    android:typeface="sans" />
+
+                <TextView
+                    android:id="@+id/text_s_duration"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:focusable="false"
+                    android:gravity="center"
+                    android:textSize="14sp"
+                    android:typeface="sans" />
+
+                <TextView
+                    android:id="@+id/text_s_end_time"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:layout_weight="1"
+                    android:focusable="false"
+                    android:gravity="right"
+                    android:textSize="14sp"
+                    android:typeface="sans" />
+            </TableRow>
+
+            <TableRow android:id="@+id/row_for_icons" >
+
+                <ImageView
+                    android:id="@+id/icon"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:contentDescription="mode icon"
+                    android:focusable="false"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/line_number"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:focusable="false"
+                    android:gravity="center"
+                    android:visibility="gone" />
+            </TableRow>
+
+            <TableRow>
+            </TableRow>
+        </TableLayout>
+
+</LinearLayout>

@@ -1,0 +1,207 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    tools:context="com.devglyph.reitittaja.fragments.JourneyPlannerFragment">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <TableLayout
+            android:id="@+id/editTexts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:descendantFocusability="beforeDescendants"
+            android:focusableInTouchMode="true" >
+
+            <TableRow>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/journey_planner_from"
+                    android:id="@+id/fromTextView"
+                    android:inputType="textAutoComplete"
+                    android:textSize="20dp"
+                    android:layout_weight="1" />
+
+                <AutoCompleteTextView
+                    android:id="@+id/start_place"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:hint="@string/journey_planner_current_location"
+                    android:layout_weight="10" />
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/from_favorites"
+                    android:src="@drawable/ic_action_star"
+                    android:layout_weight="1" />
+            </TableRow>
+
+            <TableRow>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/journey_planner_to"
+                    android:id="@+id/toTextView"
+                    android:inputType="textAutoComplete"
+                    android:textSize="20dp"
+                    android:layout_weight="1" />
+
+                <AutoCompleteTextView
+                    android:id="@+id/end_place"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:layout_weight="10" />
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/to_favorites"
+                    android:src="@drawable/ic_action_star"
+                    android:layout_weight="1" />
+            </TableRow>
+        </TableLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/journey_planner_when"
+                android:id="@+id/whenTextView"
+                android:textSize="20dp" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/whenTimeButton"
+                android:text="@string/pick_time"
+                android:layout_weight="2" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/whenDateButton"
+                android:text="@string/pick_date"
+                android:layout_weight="2" />
+        </LinearLayout>
+
+        <RadioGroup
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:id="@+id/radioGroupArrivalDeparture">
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/journey_planner_start_time"
+                android:id="@+id/radioButtonDepartureTime"
+                android:checked="true" />
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/journey_planner_arrival_time"
+                android:id="@+id/radioButtonArrivalTime"
+                android:checked="false" />
+        </RadioGroup>
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/journey_planner_how"
+                android:id="@+id/transportationModesTextView"
+                android:textSize="20dp" />
+
+            <TableRow>
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/journey_planner_bus"
+                    android:id="@+id/checkBoxBus" />
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/journey_planner_train"
+                    android:id="@+id/checkBoxTrain"
+                    android:layout_toRightOf="@+id/checkBoxBus" />
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/journey_planner_metro"
+                    android:id="@+id/checkBoxMetro"
+                    android:layout_toRightOf="@+id/checkBoxTrain" />
+            </TableRow>
+
+            <TableRow>
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/journey_planner_tram"
+                    android:id="@+id/checkBoxTram"
+                    android:layout_below="@+id/checkBoxBus" />
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/journey_planner_uline_bus"
+                    android:id="@+id/checkBoxUline"
+                    android:layout_toRightOf="@+id/checkBoxTram"
+                    android:layout_below="@+id/checkBoxTrain" />
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/journey_planner_service_bus"
+                    android:id="@+id/checkBoxService"
+                    android:layout_toRightOf="@+id/checkBoxUline"
+                    android:layout_below="@+id/checkBoxMetro" />
+            </TableRow>
+
+            <TableRow>
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/journey_planner_only_walking"
+                    android:id="@+id/checkBoxOnlyWalking"
+                    android:layout_below="@+id/checkBoxTram" />
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/journey_planner_only_cycling"
+                    android:id="@+id/checkBoxOnlyCycling"
+                    android:layout_toRightOf="@+id/checkBoxOnlyWalking"
+                    android:layout_below="@+id/checkBoxUline" />
+            </TableRow>
+
+        </TableLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="20dip"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/button_search"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="right|center_vertical"
+                android:text="@string/journey_planner_search" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

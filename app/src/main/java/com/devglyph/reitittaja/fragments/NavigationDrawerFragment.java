@@ -1,16 +1,16 @@
-package com.devglyph.reitittaja;
+package com.devglyph.reitittaja.fragments;
 
-import android.support.v7.app.ActionBarActivity;
 import android.app.Activity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,7 +20,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
+
+import com.devglyph.reitittaja.R;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -55,7 +56,7 @@ public class NavigationDrawerFragment extends Fragment {
     private View mFragmentContainerView;
 
     private int mCurrentSelectedPosition = 0;
-    private boolean mFromSavedInstanceState;
+    private boolean mFromSavedInstanceState = false;
     private boolean mUserLearnedDrawer;
 
     public NavigationDrawerFragment() {
@@ -76,7 +77,7 @@ public class NavigationDrawerFragment extends Fragment {
         }
 
         // Select either the default item (0) or the last selected item.
-        selectItem(mCurrentSelectedPosition);
+        selectItem(mCurrentSelectedPosition, mFromSavedInstanceState);
     }
 
     @Override
@@ -94,7 +95,7 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectItem(position);
+                selectItem(position, false);
             }
         });
         mDrawerListView.setAdapter(new ArrayAdapter<String>(
@@ -105,6 +106,7 @@ public class NavigationDrawerFragment extends Fragment {
                         getString(R.string.title_section1),
                         getString(R.string.title_section2),
                         getString(R.string.title_section3),
+                        getString(R.string.title_section5),
                 }));
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
         return mDrawerListView;
@@ -188,7 +190,7 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerLayout.setDrawerListener(mDrawerToggle);
     }
 
-    private void selectItem(int position) {
+    private void selectItem(int position, boolean fromSavedInstance) {
         mCurrentSelectedPosition = position;
         if (mDrawerListView != null) {
             mDrawerListView.setItemChecked(position, true);
@@ -197,7 +199,7 @@ public class NavigationDrawerFragment extends Fragment {
             mDrawerLayout.closeDrawer(mFragmentContainerView);
         }
         if (mCallbacks != null) {
-            mCallbacks.onNavigationDrawerItemSelected(position);
+            mCallbacks.onNavigationDrawerItemSelected(position, fromSavedInstance);
         }
     }
 
@@ -247,11 +249,6 @@ public class NavigationDrawerFragment extends Fragment {
             return true;
         }
 
-        if (item.getItemId() == R.id.action_example) {
-            Toast.makeText(getActivity(), "Example action.", Toast.LENGTH_SHORT).show();
-            return true;
-        }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -277,6 +274,6 @@ public class NavigationDrawerFragment extends Fragment {
         /**
          * Called when an item in the navigation drawer is selected.
          */
-        void onNavigationDrawerItemSelected(int position);
+        void onNavigationDrawerItemSelected(int position, boolean fromSavedInstanceState);
     }
 }
