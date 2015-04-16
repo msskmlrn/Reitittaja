@@ -60,7 +60,7 @@ public class RouteListFragment extends Fragment {
      * selections.
      */
     public interface OnItemSelected {
-        public void onItemSelected(int index);
+        void onItemSelected(int index);
     }
 
     /**

@@ -236,7 +236,7 @@ public class FavoriteDialogFragment extends DialogFragment implements AdapterVie
      * else from end place favorite.
      */
     public interface OnFavoriteChosenListener {
-        public void onFavoriteChosen(Location location, boolean startPlace);
+        void onFavoriteChosen(Location location, boolean startPlace);
     }
 
     @Override

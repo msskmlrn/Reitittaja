@@ -262,7 +262,7 @@ public class SaveToFavoritesFragment extends DialogFragment {
      * else from end place favorite.
      */
     public interface OnFavoriteSavedListener{
-        public void onFavoriteSaved(Location location, boolean startPlace);
+        void onFavoriteSaved(Location location, boolean startPlace);
     }
 
 }
