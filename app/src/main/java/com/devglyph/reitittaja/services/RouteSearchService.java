@@ -31,7 +31,7 @@ import java.util.ArrayList;
  */
 public class RouteSearchService extends IntentService {
     private static final String ACTION_ROUTE_SEARCH = "com.devglyph.reitittaja.services.action.ROUTE_SEARCH";
-    public static final String URL_EXTRA = "com.devglyph.reitittaja.services.extra.URL";
+    private static final String URL_EXTRA = "com.devglyph.reitittaja.services.extra.URL";
     public static final String ROUTE_SEARCH_DONE = "com.devglyph.reitittaja.ROUTE_SEARCH_DONE";
 
     private final String LOG_TAG = RouteSearchService.class.getSimpleName();
