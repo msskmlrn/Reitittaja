@@ -153,14 +153,8 @@ public class LocationJsonParserUtil {
             longitude = Double.parseDouble(coordinates.substring(0, coordinates.indexOf(",")));
             latitude = Double.parseDouble(coordinates.substring(coordinates.indexOf(",") + 1));
         }
-        catch (NumberFormatException ex) {
-
-        }
-        catch (IndexOutOfBoundsException ex) {
-
-        }
-        catch (NullPointerException ex) {
-
+        catch (Exception ex) {
+            return new Coordinates(0, 0);
         }
 
         return new Coordinates(latitude, longitude);
