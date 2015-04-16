@@ -36,10 +36,7 @@ import com.devglyph.reitittaja.data.LocationContract;
 public class FavoritesFragment extends Fragment implements AbsListView.OnItemClickListener,
         LoaderManager.LoaderCallbacks<Cursor> {
 
-    private static final String SECTION_PARAM = "param1";
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    private static final String SECTION_PARAM = "section_param1";
     private static final String ARG_PARAM1 = "param1";
 
     private OnFragmentInteractionListener mListener;
@@ -59,12 +56,11 @@ public class FavoritesFragment extends Fragment implements AbsListView.OnItemCli
      */
     //private ListAdapter mAdapter;
 
-    // TODO: Rename and change types of parameters
-    public static FavoritesFragment newInstance(int param1) {
+    public static FavoritesFragment newInstance(int sectionNumber) {
         Log.d("FavoritesFragment", "newInstance");
         FavoritesFragment fragment = new FavoritesFragment();
         Bundle args = new Bundle();
-        args.putInt(SECTION_PARAM, param1);
+        args.putInt(SECTION_PARAM, sectionNumber);
         fragment.setArguments(args);
         return fragment;
     }
