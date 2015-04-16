@@ -181,7 +181,7 @@ public class SaveToFavoritesFragment extends DialogFragment {
         String entryDescription = cursor.getString(LocationContract.LocationEntry.COLUMN_LOCATION_DESCRIPTION_INDEX);
         double entryLat = cursor.getDouble(LocationContract.LocationEntry.COLUMN_COORD_LAT_INDEX);
         double entryLon = cursor.getDouble(LocationContract.LocationEntry.COLUMN_COORD_LONG_INDEX);
-        boolean entryFavorite = cursor.getInt(LocationContract.LocationEntry.COLUMN_FAVORITE_INDEX) == 1 ? true : false;
+        boolean entryFavorite = cursor.getInt(LocationContract.LocationEntry.COLUMN_FAVORITE_INDEX) == 1;
 
         Log.d(LOG_TAG, entryName + " " + entryDescription + " " + entryLat + " " + entryLon + " " + entryFavorite);
         Log.d(LOG_TAG, "old description "+entryDescription + " vs new "+description);
