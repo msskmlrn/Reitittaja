@@ -40,7 +40,6 @@ public class RouteListFragment extends Fragment {
 
     private ArrayList<Route> mRoutes = new ArrayList<>();
     private ListView listView;
-    private TextView startPlace, endPlace;
 
     private RoutesAdapter routeArrayAdapter;
 
@@ -85,8 +84,8 @@ public class RouteListFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_routes, null);
         listView = (ListView) v.findViewById(R.id.list_routes);
 
-        startPlace = (TextView) v.findViewById(R.id.start_place);
-        endPlace = (TextView) v.findViewById(R.id.end_place);
+        TextView startPlace = (TextView) v.findViewById(R.id.start_place);
+        TextView endPlace = (TextView) v.findViewById(R.id.end_place);
 
         startPlace.setText(mRoutes.get(0).getStartLocation().getName());
         endPlace.setText(mRoutes.get(0).getEndLocation().getName());
