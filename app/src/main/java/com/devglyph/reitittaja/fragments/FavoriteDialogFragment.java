@@ -198,7 +198,7 @@ public class FavoriteDialogFragment extends DialogFragment implements AdapterVie
                 String description = cursor.getString(LocationContract.LocationEntry.COLUMN_LOCATION_DESCRIPTION_INDEX);
                 double lat = cursor.getDouble(LocationContract.LocationEntry.COLUMN_COORD_LAT_INDEX);
                 double lon = cursor.getDouble(LocationContract.LocationEntry.COLUMN_COORD_LONG_INDEX);
-                boolean favorite = cursor.getInt(LocationContract.LocationEntry.COLUMN_FAVORITE_INDEX) == 1 ? true : false;
+                boolean favorite = cursor.getInt(LocationContract.LocationEntry.COLUMN_FAVORITE_INDEX) == 1;
 
                 Log.d(LOG_TAG, "location info from database, clicked item");
                 Log.d(LOG_TAG, name + " " + description + " " + lat + " " + lon + " " + favorite);
