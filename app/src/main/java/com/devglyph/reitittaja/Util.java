@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class Util {
@@ -101,7 +102,7 @@ public class Util {
 
     public static Date parseDate(String dateFormat, String time) {
 
-        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat, Locale.US);
 
         try {
             return sdf.parse(time);
@@ -114,7 +115,7 @@ public class Util {
 
     public static String parseDate(String dateFormat, long time) {
 
-        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat, Locale.US);
 
         try {
             return sdf.format(time);

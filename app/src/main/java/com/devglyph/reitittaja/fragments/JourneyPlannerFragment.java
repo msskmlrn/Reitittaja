@@ -58,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class JourneyPlannerFragment extends Fragment implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -944,7 +945,7 @@ public class JourneyPlannerFragment extends Fragment implements
         }
 
         //format the date to yyyymmdd
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd", Locale.US);
         date = simpleDateFormat.format(dDate);
 
         return date;
@@ -974,7 +975,7 @@ public class JourneyPlannerFragment extends Fragment implements
     private String getTimeParameter() {
         //format the time to hhmm
         Date dTime = getTimeButtonTime().getTime();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HHmm");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HHmm", Locale.US);
         String time = simpleDateFormat.format(dTime);
 
         Log.d(LOG_TAG, "time set "+time);

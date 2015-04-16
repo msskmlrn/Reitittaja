@@ -15,6 +15,7 @@ import com.devglyph.reitittaja.models.Route;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 public class RoutesAdapter extends ArrayAdapter<Route> {
 
@@ -77,7 +78,7 @@ public class RoutesAdapter extends ArrayAdapter<Route> {
     private String parseTimeToHHMM(Date date) {
         SimpleDateFormat simpleDateFormat;
 
-        simpleDateFormat = new SimpleDateFormat("HHmm");
+        simpleDateFormat = new SimpleDateFormat("HHmm", Locale.US);
         return simpleDateFormat.format(date);
     }
 
