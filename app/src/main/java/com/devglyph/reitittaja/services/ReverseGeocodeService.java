@@ -132,7 +132,9 @@ public class ReverseGeocodeService extends IntentService {
             int locationIdIndex = cursor.getColumnIndex(LocationContract.LocationEntry._ID);
             Log.d(LOG_TAG, "location already present");
 
-            return cursor.getLong(locationIdIndex);
+            long result = cursor.getLong(locationIdIndex);
+            cursor.close();
+            return result;
         } else {
             int favoriteValue = favorite ? 1 : 0;
 
@@ -153,6 +155,7 @@ public class ReverseGeocodeService extends IntentService {
             Log.d(LOG_TAG, "inserting location");
             Log.d(LOG_TAG, "favorite value "+favoriteValue);
 
+            cursor.close();
             return ContentUris.parseId(locationInsertUri);
         }
     }
