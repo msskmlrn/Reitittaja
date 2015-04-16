@@ -31,8 +31,8 @@ import java.util.Date;
  */
 public class CycleRouteSearchService extends IntentService {
     private static final String ACTION_CYCLE_ROUTE_SEARCH = "com.devglyph.reitittaja.services.action.CYCLE_ROUTE_SEARCH";
-    public static final String URL_EXTRA = "com.devglyph.reitittaja.services.extra.URL";
-    public static final String SEARCH_TIME_EXTRA = "com.devglyph.reitittaja.services.extra.SEARCH_TIME";
+    private static final String URL_EXTRA = "com.devglyph.reitittaja.services.extra.URL";
+    private static final String SEARCH_TIME_EXTRA = "com.devglyph.reitittaja.services.extra.SEARCH_TIME";
 
     private final String LOG_TAG = CycleRouteSearchService.class.getSimpleName();
 
