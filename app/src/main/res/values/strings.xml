@@ -69,5 +69,6 @@
     <string name="route_type_least_walking">least walking</string>
 
     <string name="transportation_mode_icon_text">Transportation mode icon</string>
+    <string name="favorite_icon_text">Favorite</string>
 
 </resources>

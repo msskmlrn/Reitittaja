@@ -39,6 +39,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/from_favorites"
                     android:src="@drawable/ic_action_star"
+                    android:contentDescription="@string/favorite_icon_text"
                     android:layout_weight="1" />
             </TableRow>
 
@@ -64,6 +65,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/to_favorites"
                     android:src="@drawable/ic_action_star"
+                    android:contentDescription="@string/favorite_icon_text"
                     android:layout_weight="1" />
             </TableRow>
         </TableLayout>
