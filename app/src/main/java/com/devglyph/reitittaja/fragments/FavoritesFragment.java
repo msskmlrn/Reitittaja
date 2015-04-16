@@ -37,8 +37,6 @@ public class FavoritesFragment extends Fragment implements AbsListView.OnItemCli
         LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String SECTION_PARAM = "section_param1";
-    private static final String ARG_PARAM1 = "param1";
-
     private OnFragmentInteractionListener mListener;
 
     private final String LOG_TAG = FavoritesFragment.class.getSimpleName();
@@ -49,12 +47,6 @@ public class FavoritesFragment extends Fragment implements AbsListView.OnItemCli
     private ListView mListView;
 
     private SimpleCursorAdapter mAdapter;
-
-    /**
-     * The Adapter which will be used to populate the ListView/GridView with
-     * Views.
-     */
-    //private ListAdapter mAdapter;
 
     public static FavoritesFragment newInstance(int sectionNumber) {
         Log.d("FavoritesFragment", "newInstance");
@@ -78,15 +70,7 @@ public class FavoritesFragment extends Fragment implements AbsListView.OnItemCli
 
         Log.d(LOG_TAG, "onCreate");
 
-        if (getArguments() != null) {
-            int mParam1 = getArguments().getInt(ARG_PARAM1);
-        }
-
         setHasOptionsMenu(true);
-
-        // TODO: Change Adapter to display your content
-        //mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
-        //        android.R.layout.simple_list_item_1, android.R.id.text1, DummyContent.ITEMS);
     }
 
     @Override
@@ -98,7 +82,6 @@ public class FavoritesFragment extends Fragment implements AbsListView.OnItemCli
 
         // Set the mAdapter
         mListView = (ListView) view.findViewById(android.R.id.list);
-        //((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
 
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
@@ -220,5 +203,4 @@ public class FavoritesFragment extends Fragment implements AbsListView.OnItemCli
         // data is not available anymore, delete reference
         mAdapter.swapCursor(null);
     }
-
 }
