@@ -42,9 +42,6 @@ public class FavoritesFragment extends Fragment implements AbsListView.OnItemCli
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
 
-    // TODO: Rename and change types of parameters
-    private int mParam1;
-
     private OnFragmentInteractionListener mListener;
 
     private final String LOG_TAG = FavoritesFragment.class.getSimpleName();
@@ -86,7 +83,7 @@ public class FavoritesFragment extends Fragment implements AbsListView.OnItemCli
         Log.d(LOG_TAG, "onCreate");
 
         if (getArguments() != null) {
-            mParam1 = getArguments().getInt(ARG_PARAM1);
+            int mParam1 = getArguments().getInt(ARG_PARAM1);
         }
 
         setHasOptionsMenu(true);
