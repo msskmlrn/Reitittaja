@@ -51,8 +51,6 @@ public class FavoriteDialogFragment extends DialogFragment implements AdapterVie
 
     private OnFavoriteChosenListener mListener;
 
-    private Button saveButton;
-
     /**
      * The fragment's ListView/GridView.
      */
@@ -116,7 +114,7 @@ public class FavoriteDialogFragment extends DialogFragment implements AdapterVie
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
 
-        saveButton = (Button) view.findViewById(R.id.button_save_location);
+        Button saveButton = (Button) view.findViewById(R.id.button_save_location);
         createOnClickListener(saveButton);
 
         // Fields from the database (projection)
