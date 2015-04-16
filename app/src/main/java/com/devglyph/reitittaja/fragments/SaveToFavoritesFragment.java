@@ -124,7 +124,7 @@ public class SaveToFavoritesFragment extends DialogFragment {
                     //Otherwise, this is a new favorite, so save it to the database.
 
                     //get the description from the text field
-                    if (mEditText.getText().toString() != null && !mEditText.getText().toString().isEmpty()) {
+                    if (!mEditText.getText().toString().isEmpty()) {
                         mDescription = mEditText.getText().toString();
                     }
 
