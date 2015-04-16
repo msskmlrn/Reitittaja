@@ -28,12 +28,12 @@ import java.util.ArrayList;
  * (if present) is a {@link com.devglyph.reitittaja.fragments.RouteDetailFragment}.
  * <p/>
  * This activity also implements the required
- * {@link com.devglyph.reitittaja.fragments.RouteListFragment.Callbacks} interface
+ * {@link com.devglyph.reitittaja.fragments.RouteListFragment.OnItemSelected} interface
  * to listen for item selections.
  */
 
 public class RouteListActivity extends ActionBarActivity
-        implements RouteListFragment.Callbacks {
+        implements RouteListFragment.OnItemSelected {
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -72,7 +72,7 @@ public class RouteListActivity extends ActionBarActivity
     }
 
     /**
-     * Callback method from {@link RouteListFragment.Callbacks}
+     * Callback method from {@link com.devglyph.reitittaja.fragments.RouteListFragment.OnItemSelected}
      * indicating that the item with the given ID was selected.
      */
     @Override
