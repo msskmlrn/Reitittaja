@@ -139,7 +139,6 @@ public class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements F
             Log.d(LOG_TAG, ""+url);
 
             conn = (HttpURLConnection) url.openConnection();
-            InputStreamReader in = new InputStreamReader(conn.getInputStream());
 
             // Read the input stream into a String
             InputStream inputStream = conn.getInputStream();
