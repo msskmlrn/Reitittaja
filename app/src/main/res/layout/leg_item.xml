@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginRight="20dip"
-        android:contentDescription="Transportation mode icon"
+        android:contentDescription="@string/transportation_mode_icon_text"
         android:focusable="false" />
 
     <LinearLayout

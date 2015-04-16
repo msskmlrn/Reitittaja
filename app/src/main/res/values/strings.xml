@@ -68,4 +68,6 @@
     <string name="route_type_least_transfers">least transfers</string>
     <string name="route_type_least_walking">least walking</string>
 
+    <string name="transportation_mode_icon_text">Transportation mode icon</string>
+
 </resources>
