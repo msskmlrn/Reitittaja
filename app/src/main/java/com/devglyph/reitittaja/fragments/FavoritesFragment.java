@@ -182,13 +182,12 @@ public class FavoritesFragment extends Fragment implements AbsListView.OnItemCli
         Log.d(LOG_TAG, "onCreateLoader");
         String[] projection = { LocationContract.LocationEntry._ID, LocationContract.LocationEntry.COLUMN_LOCATION_NAME};
         //get only favorite locations
-        CursorLoader cursorLoader = new CursorLoader(getActivity(),
+        return new CursorLoader(getActivity(),
                 LocationContract.LocationEntry.CONTENT_URI,
                 projection,
                 LocationContract.LocationEntry.COLUMN_FAVORITE + " = ?", // cols for "where" clause
                 new String[]{"1"}, // values for "where" clause
                 null);
-        return cursorLoader;
     }
 
     @Override
