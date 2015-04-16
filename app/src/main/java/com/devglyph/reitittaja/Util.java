@@ -47,7 +47,7 @@ public class Util {
             String lineCode = joreCode.substring(1,4).replaceAll("^0+", "");
             //get the letter variant, if any
             String lineLetter = joreCode.substring(4,5);
-            return lineCode.toString() + lineLetter;
+            return lineCode + lineLetter;
         }
     }
 
