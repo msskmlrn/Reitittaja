@@ -1,5 +1,6 @@
 package com.devglyph.reitittaja.services;
 
+import android.annotation.TargetApi;
 import android.app.IntentService;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -7,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -113,6 +115,7 @@ public class ReverseGeocodeService extends IntentService {
      * @param lon the longitude of the city
      * @return the row ID of the added location.
      */
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private long addLocation(boolean favorite, String name, String description, double lat, double lon) {
         Log.d(LOG_TAG, "add location "+favorite + " "+name + " "+ description + " " + lat + " " + lon);
 

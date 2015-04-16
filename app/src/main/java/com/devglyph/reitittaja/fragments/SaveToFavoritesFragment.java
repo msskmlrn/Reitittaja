@@ -1,9 +1,11 @@
 package com.devglyph.reitittaja.fragments;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
@@ -143,6 +145,7 @@ public class SaveToFavoritesFragment extends DialogFragment {
      * @param lat
      * @param lon
      */
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void addToFavorites(String name, String description, double lat, double lon) {
         Log.d(LOG_TAG, "addToFavorites");
         Log.d(LOG_TAG, name + " " + description + " " + lat + " "+ lon);
