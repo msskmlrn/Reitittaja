@@ -120,13 +120,14 @@ public class FavoriteDialogFragment extends DialogFragment implements AdapterVie
         // Fields from the database (projection)
         // Must include the _id column for the adapter to work
         String[] from = new String[] { LocationContract.LocationEntry._ID,
+                LocationContract.LocationEntry.COLUMN_FAVORITE,
                 LocationContract.LocationEntry.COLUMN_LOCATION_NAME,
                 LocationContract.LocationEntry.COLUMN_LOCATION_DESCRIPTION,
                 LocationContract.LocationEntry.COLUMN_COORD_LAT,
                 LocationContract.LocationEntry.COLUMN_COORD_LONG,
-                LocationContract.LocationEntry.COLUMN_FAVORITE};
+                };
         // Fields on the UI to which we map
-        int[] to = new int[] { android.R.id.text1, android.R.id.text1 };
+        int[] to = new int[] { android.R.id.text1, android.R.id.text1, android.R.id.text1 };
 
         getLoaderManager().initLoader(0, null, this);
         mAdapter = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_list_item_1, null, from,
@@ -242,11 +243,11 @@ public class FavoriteDialogFragment extends DialogFragment implements AdapterVie
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Log.d(LOG_TAG, "onCreateLoader");
         String[] projection = { LocationContract.LocationEntry._ID,
+                LocationContract.LocationEntry.COLUMN_FAVORITE,
                 LocationContract.LocationEntry.COLUMN_LOCATION_NAME,
                 LocationContract.LocationEntry.COLUMN_LOCATION_DESCRIPTION,
                 LocationContract.LocationEntry.COLUMN_COORD_LAT,
-                LocationContract.LocationEntry.COLUMN_COORD_LONG,
-                LocationContract.LocationEntry.COLUMN_FAVORITE};
+                LocationContract.LocationEntry.COLUMN_COORD_LONG };
 
         //get only favorite locations
         CursorLoader cursorLoader = new CursorLoader(getActivity(),
