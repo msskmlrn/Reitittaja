@@ -115,7 +115,6 @@ public class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements F
         ArrayList<String> autoCompleteResultsList = new ArrayList<>();
 
         HttpURLConnection conn = null;
-        StringBuilder jsonResults = new StringBuilder();
         String resultString;
         BufferedReader reader = null;
         try {
