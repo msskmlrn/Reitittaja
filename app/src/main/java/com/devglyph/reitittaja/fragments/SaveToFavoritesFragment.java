@@ -29,9 +29,7 @@ public class SaveToFavoritesFragment extends DialogFragment {
     private final String LOG_TAG = FavoritesFragment.class.getSimpleName();
 
     private OnFavoriteSavedListener mListener;
-    private TextView mNameText;
     private EditText mEditText;
-    private Button mCancelButton, mSaveButton;
 
     private static final String NAME_PARAM = "name";
     private static final String DESCRIPTION_PARAM = "description";
@@ -82,11 +80,11 @@ public class SaveToFavoritesFragment extends DialogFragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_save_to_favorites, container);
-        mNameText = (TextView) view.findViewById(R.id.favorite_name);
+        TextView mNameText = (TextView) view.findViewById(R.id.favorite_name);
         mEditText = (EditText) view.findViewById(R.id.favorite_description);
-        mCancelButton = (Button) view.findViewById(R.id.favorite_cancel);
+        Button mCancelButton = (Button) view.findViewById(R.id.favorite_cancel);
         createOnClickListener(mCancelButton);
-        mSaveButton = (Button) view.findViewById(R.id.favorite_save);
+        Button mSaveButton = (Button) view.findViewById(R.id.favorite_save);
         createOnClickListener(mSaveButton);
 
         //set the name of the location
