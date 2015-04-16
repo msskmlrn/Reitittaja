@@ -68,9 +68,6 @@
                     android:gravity="center"
                     android:visibility="gone" />
             </TableRow>
-
-            <TableRow>
-            </TableRow>
         </TableLayout>
 
 </LinearLayout>
