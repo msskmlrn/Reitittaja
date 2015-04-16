@@ -77,14 +77,6 @@ public class RouteDetailFragment extends Fragment {
         totalTime = (TextView) rootView.findViewById(R.id.total_time);
         tripDistance = (TextView) rootView.findViewById(R.id.trip_distance);
 
-        /*
-        // Show the dummy content as text in a TextView.
-        if (mRoute != null) {
-            ((TextView) rootView.findViewById(R.id.route_detail)).setText
-                    (mRoute.getStartLocation().getName() + " - " + mRoute.getEndLocation().getName());
-        }
-        */
-
         if (mRoute != null) {
             processRoute(mRoute);
             setTripStartAndEndDetailsToView();
@@ -109,7 +101,6 @@ public class RouteDetailFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        //updateAdapter();
     }
 
     /**

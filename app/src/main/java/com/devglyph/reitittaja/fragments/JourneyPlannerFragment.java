@@ -481,8 +481,8 @@ public class JourneyPlannerFragment extends Fragment implements
      * @param value
      */
     private void setWalkingAndCycling(TableLayout layout, boolean value) {
-        markItem(R.id.checkBoxOnlyCycling, value, layout);
-        markItem(R.id.checkBoxOnlyWalking, value, layout);
+        markItem(R.id.checkBoxOnlyCycling, false, layout);
+        markItem(R.id.checkBoxOnlyWalking, false, layout);
     }
 
     /**
