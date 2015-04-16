@@ -917,7 +917,7 @@ public class JourneyPlannerFragment extends Fragment implements
         }
         else {
             timeType = "" + R.string.journey_planner_arrival_time;
-            timeType.toLowerCase(); //format the parameter for the query
+            timeType = timeType.toLowerCase(); //format the parameter for the query
         }
 
         return timeType;
