@@ -23,7 +23,7 @@
                     android:text="@string/journey_planner_from"
                     android:id="@+id/fromTextView"
                     android:inputType="textAutoComplete"
-                    android:textSize="20dp"
+                    android:textSize="20sp"
                     android:layout_weight="1" />
 
                 <AutoCompleteTextView
@@ -50,7 +50,7 @@
                     android:text="@string/journey_planner_to"
                     android:id="@+id/toTextView"
                     android:inputType="textAutoComplete"
-                    android:textSize="20dp"
+                    android:textSize="20sp"
                     android:layout_weight="1" />
 
                 <AutoCompleteTextView
@@ -80,7 +80,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/journey_planner_when"
                 android:id="@+id/whenTextView"
-                android:textSize="20dp" />
+                android:textSize="20sp" />
 
             <Button
                 android:layout_width="wrap_content"
@@ -128,7 +128,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/journey_planner_how"
                 android:id="@+id/transportationModesTextView"
-                android:textSize="20dp" />
+                android:textSize="20sp" />
 
             <TableRow>
                 <CheckBox
