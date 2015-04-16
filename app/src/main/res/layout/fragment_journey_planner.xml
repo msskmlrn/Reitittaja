@@ -192,7 +192,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_gravity="right|center_vertical"
+                android:layout_gravity="end|center_vertical"
                 android:text="@string/journey_planner_search" />
         </LinearLayout>
     </LinearLayout>

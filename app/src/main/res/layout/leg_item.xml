@@ -10,8 +10,9 @@
         android:id="@+id/text_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="left|center_vertical"
+        android:layout_gravity="start|center_vertical"
         android:layout_marginRight="20dip"
+        android:layout_marginEnd="20dip"
         android:focusable="false"
         android:textSize="16sp"
         android:textStyle="bold"
@@ -23,6 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginRight="20dip"
+        android:layout_marginEnd="20dip"
         android:contentDescription="@string/transportation_mode_icon_text"
         android:focusable="false" />
 
@@ -39,7 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="top"
             android:focusable="false"
-            android:gravity="left"
+            android:gravity="start"
             android:textSize="16sp"
             android:textStyle="bold"
             android:typeface="sans" />
@@ -50,7 +52,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:focusable="false"
-            android:gravity="left"
+            android:gravity="start"
             android:textSize="15sp" />
     </LinearLayout>
 
@@ -63,10 +65,10 @@
             android:id="@+id/text_leg_distance"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_gravity="right"
+            android:layout_gravity="end"
             android:layout_weight="2"
             android:focusable="false"
-            android:gravity="top|right"
+            android:gravity="top|end"
             android:lines="1"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -76,10 +78,10 @@
             android:id="@+id/text_leg_duration"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_gravity="right"
+            android:layout_gravity="end"
             android:layout_weight="2"
             android:focusable="false"
-            android:gravity="bottom|right"
+            android:gravity="bottom|end"
             android:lines="1"
             android:textSize="16sp"
             android:textStyle="normal"

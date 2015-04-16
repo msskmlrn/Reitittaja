@@ -16,10 +16,10 @@
                     android:id="@+id/text_s_st_time"
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="left"
+                    android:layout_gravity="start"
                     android:layout_weight="1"
                     android:focusable="false"
-                    android:gravity="left"
+                    android:gravity="start"
                     android:textSize="14sp"
                     android:typeface="sans" />
 
@@ -38,10 +38,10 @@
                     android:id="@+id/text_s_end_time"
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="right"
+                    android:layout_gravity="end"
                     android:layout_weight="1"
                     android:focusable="false"
-                    android:gravity="right"
+                    android:gravity="end"
                     android:textSize="14sp"
                     android:typeface="sans" />
             </TableRow>
