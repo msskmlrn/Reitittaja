@@ -222,7 +222,7 @@ public class RouteSearchService extends IntentService {
                 }
                 else if (location.has(TAG_LOCATION_CODE)) {
                     code = location.getString(TAG_LOCATION_CODE);
-                    routeLocation.setCode(tryParsingStringToInt(code));
+                    routeLocation.setCode(Util.tryParsingStringToInt(code));
                 }
                 else if (location.has(TAG_LOCATION_SHORT_CODE)) {
                     shortCode = location.getString(TAG_LOCATION_SHORT_CODE);
@@ -241,16 +241,6 @@ public class RouteSearchService extends IntentService {
         }
 
         return locations;
-    }
-
-    private int tryParsingStringToInt(String string) {
-        try {
-            return Integer.parseInt(string);
-        }
-        catch (NumberFormatException e) {
-            Log.e(LOG_TAG, "Cannot parse int", e);
-            return -1;
-        }
     }
 
     private ArrayList<Coordinates> getLegShape(JSONArray shapeArray) {
