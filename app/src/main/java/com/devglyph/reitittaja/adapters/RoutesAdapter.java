@@ -10,12 +10,10 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.devglyph.reitittaja.R;
+import com.devglyph.reitittaja.Util;
 import com.devglyph.reitittaja.models.Route;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
 
 public class RoutesAdapter extends ArrayAdapter<Route> {
 
@@ -62,56 +60,17 @@ public class RoutesAdapter extends ArrayAdapter<Route> {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        holder.startTime.setText(parseTimeToHHMM(route.getStartLocation().getDepartureTime()));
-        holder.endTime.setText(parseTimeToHHMM(route.getEndLocation().getArrivalTime()));
+        holder.startTime.setText(Util.parseTimeToHHMM(route.getStartLocation().getDepartureTime()));
+        holder.endTime.setText(Util.parseTimeToHHMM(route.getEndLocation().getArrivalTime()));
 
         holder.iconRow.removeAllViews();
 
         addLegIconsToGroup(holder, route);
 
-        holder.duration.setText( calculateDurationInHHMM(route.getDuration()));
+        holder.duration.setText(Util.calculateDurationInHHMM(route.getDuration()));
         holder.duration.setTextColor(Color.BLACK);
 
         return convertView;
-    }
-
-    private String parseTimeToHHMM(Date date) {
-        SimpleDateFormat simpleDateFormat;
-
-        simpleDateFormat = new SimpleDateFormat("HHmm", Locale.US);
-        return simpleDateFormat.format(date);
-    }
-
-    /**
-     * Format the duration to X h Y min (Z sec) format.
-     * @param duration in seconds
-     * @return duration in string X h Y min format, if h and min > 0, else return Z sec
-     */
-    public static String calculateDurationInHHMM(double duration) {
-        String hh = "";
-        String mm = "";
-        String ss = "";
-
-        int h = 0;
-        int m = 0;
-        int s = 0;
-
-        if (((int) duration / 3600) > 0) {
-            h = ((int) duration / 3600);
-            hh = h + " h ";
-        }
-
-        if (((int) duration % 3600) / 60 > 0) {
-            m = (((int) duration % 3600) / 60);
-            mm = m + " min ";
-        }
-
-        if (h == 0 && m == 0) {
-            s = (int) duration; //the duration is already in seconds, so just cast it
-            ss = s + " sec";
-        }
-
-        return hh + mm + ss;
     }
 
     /**

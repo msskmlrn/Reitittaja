@@ -126,6 +126,13 @@ public class Util {
         }
     }
 
+    public static String parseTimeToHHMM(Date date) {
+        SimpleDateFormat simpleDateFormat;
+
+        simpleDateFormat = new SimpleDateFormat(DATE_FORMAT_TIME, Locale.US);
+        return simpleDateFormat.format(date);
+    }
+
     public static String convertSecondsToHHmmss(long secs) {
         String time = "";
         long original = secs;
@@ -151,6 +158,38 @@ public class Util {
         }
 
         return time;
+    }
+
+    /**
+     * Format the duration to X h Y min (Z sec) format.
+     * @param duration in seconds
+     * @return duration in string X h Y min format, if h and min > 0, else return Z sec
+     */
+    public static String calculateDurationInHHMM(double duration) {
+        String hh = "";
+        String mm = "";
+        String ss = "";
+
+        int h = 0;
+        int m = 0;
+        int s = 0;
+
+        if (((int) duration / 3600) > 0) {
+            h = ((int) duration / 3600);
+            hh = h + " h ";
+        }
+
+        if (((int) duration % 3600) / 60 > 0) {
+            m = (((int) duration % 3600) / 60);
+            mm = m + " min ";
+        }
+
+        if (h == 0 && m == 0) {
+            s = (int) duration; //the duration is already in seconds, so just cast it
+            ss = s + " sec";
+        }
+
+        return hh + mm + ss;
     }
 
     public static boolean isBusMode(int mode) {
