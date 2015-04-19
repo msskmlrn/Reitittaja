@@ -97,7 +97,6 @@ public class RouteListFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.d(LOG_TAG, "onGroupClick, group " + position);
-                //((Callback) getActivity()).onItemSelected("as");
                 mCallback.onItemSelected(position);
             }
         });

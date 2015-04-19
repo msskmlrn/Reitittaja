@@ -76,7 +76,7 @@ public class JourneyPlannerFragment extends Fragment implements
 
     private AutoCompleteTextView mStartPlace;
     private AutoCompleteTextView mEndPlace;
-    
+
     private ProgressDialog progressDialog;
 
     private boolean mDeparture = true;
