@@ -63,7 +63,6 @@ public class FavoriteDialogFragment extends DialogFragment implements AdapterVie
      */
     private SimpleCursorAdapter mAdapter;
 
-    // TODO: Rename and change types of parameters
     public static FavoriteDialogFragment newInstance(String name, String description, double lat, double lon, boolean clickForStartPlace) {
         FavoriteDialogFragment fragment = new FavoriteDialogFragment();
         Bundle args = new Bundle();
