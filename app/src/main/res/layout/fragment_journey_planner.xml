@@ -6,7 +6,7 @@
 
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical" >
 
         <TableLayout
@@ -23,7 +23,7 @@
                     android:text="@string/journey_planner_from"
                     android:id="@+id/fromTextView"
                     android:inputType="textAutoComplete"
-                    android:textSize="20dp"
+                    android:textSize="20sp"
                     android:layout_weight="1" />
 
                 <AutoCompleteTextView
@@ -39,6 +39,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/from_favorites"
                     android:src="@drawable/ic_action_star"
+                    android:contentDescription="@string/favorite_icon_text"
                     android:layout_weight="1" />
             </TableRow>
 
@@ -49,7 +50,7 @@
                     android:text="@string/journey_planner_to"
                     android:id="@+id/toTextView"
                     android:inputType="textAutoComplete"
-                    android:textSize="20dp"
+                    android:textSize="20sp"
                     android:layout_weight="1" />
 
                 <AutoCompleteTextView
@@ -64,6 +65,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/to_favorites"
                     android:src="@drawable/ic_action_star"
+                    android:contentDescription="@string/favorite_icon_text"
                     android:layout_weight="1" />
             </TableRow>
         </TableLayout>
@@ -78,7 +80,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/journey_planner_when"
                 android:id="@+id/whenTextView"
-                android:textSize="20dp" />
+                android:textSize="20sp" />
 
             <Button
                 android:layout_width="wrap_content"
@@ -126,7 +128,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/journey_planner_how"
                 android:id="@+id/transportationModesTextView"
-                android:textSize="20dp" />
+                android:textSize="20sp" />
 
             <TableRow>
                 <CheckBox
@@ -138,14 +140,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/journey_planner_train"
-                    android:id="@+id/checkBoxTrain"
-                    android:layout_toRightOf="@+id/checkBoxBus" />
+                    android:id="@+id/checkBoxTrain" />
                 <CheckBox
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/journey_planner_metro"
-                    android:id="@+id/checkBoxMetro"
-                    android:layout_toRightOf="@+id/checkBoxTrain" />
+                    android:id="@+id/checkBoxMetro" />
             </TableRow>
 
             <TableRow>
@@ -153,22 +153,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/journey_planner_tram"
-                    android:id="@+id/checkBoxTram"
-                    android:layout_below="@+id/checkBoxBus" />
+                    android:id="@+id/checkBoxTram" />
                 <CheckBox
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/journey_planner_uline_bus"
-                    android:id="@+id/checkBoxUline"
-                    android:layout_toRightOf="@+id/checkBoxTram"
-                    android:layout_below="@+id/checkBoxTrain" />
+                    android:id="@+id/checkBoxUline" />
                 <CheckBox
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/journey_planner_service_bus"
-                    android:id="@+id/checkBoxService"
-                    android:layout_toRightOf="@+id/checkBoxUline"
-                    android:layout_below="@+id/checkBoxMetro" />
+                    android:id="@+id/checkBoxService" />
             </TableRow>
 
             <TableRow>
@@ -176,15 +171,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/journey_planner_only_walking"
-                    android:id="@+id/checkBoxOnlyWalking"
-                    android:layout_below="@+id/checkBoxTram" />
+                    android:id="@+id/checkBoxOnlyWalking" />
                 <CheckBox
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/journey_planner_only_cycling"
-                    android:id="@+id/checkBoxOnlyCycling"
-                    android:layout_toRightOf="@+id/checkBoxOnlyWalking"
-                    android:layout_below="@+id/checkBoxUline" />
+                    android:id="@+id/checkBoxOnlyCycling" />
             </TableRow>
 
         </TableLayout>
@@ -197,10 +189,10 @@
 
             <Button
                 android:id="@+id/button_search"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_gravity="right|center_vertical"
+                android:layout_gravity="end|center_vertical"
                 android:text="@string/journey_planner_search" />
         </LinearLayout>
     </LinearLayout>

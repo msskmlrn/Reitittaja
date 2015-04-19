@@ -29,7 +29,6 @@ public class MapsActivity extends FragmentActivity {
     private Route mRoute;
     private int mLegPosition = -1;
     private LatLng startLocation;
-    private LatLng endLocation;
     private static int counter = 1;
     private LatLng zoomPoint;
 
@@ -156,7 +155,7 @@ public class MapsActivity extends FragmentActivity {
                             String startName, String endName) {
 
         startLocation = new LatLng(startLati, startLongi);
-        endLocation = new LatLng(endLati, endLongi);
+        LatLng endLocation = new LatLng(endLati, endLongi);
 
         Marker marker = mMap.addMarker(new MarkerOptions().
                 position(startLocation).title(""+counter + ", " + startName));

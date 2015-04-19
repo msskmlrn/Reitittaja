@@ -11,17 +11,12 @@ import com.devglyph.reitittaja.models.Coordinates;
 import com.devglyph.reitittaja.models.Route;
 import com.devglyph.reitittaja.models.RouteLeg;
 import com.devglyph.reitittaja.models.RouteLocation;
+import com.devglyph.reitittaja.network.ApiCalls;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -31,7 +26,7 @@ import java.util.ArrayList;
  */
 public class RouteSearchService extends IntentService {
     private static final String ACTION_ROUTE_SEARCH = "com.devglyph.reitittaja.services.action.ROUTE_SEARCH";
-    public static final String URL_EXTRA = "com.devglyph.reitittaja.services.extra.URL";
+    private static final String URL_EXTRA = "com.devglyph.reitittaja.services.extra.URL";
     public static final String ROUTE_SEARCH_DONE = "com.devglyph.reitittaja.ROUTE_SEARCH_DONE";
 
     private final String LOG_TAG = RouteSearchService.class.getSimpleName();
@@ -77,61 +72,10 @@ public class RouteSearchService extends IntentService {
      * parameter.
      */
     private void handleRouteSearchAction(String urlParam) {
-        if (urlParam == null) {
-            return;
-        }
+        ApiCalls apiCalls = new ApiCalls();
+        String routesJsonString = apiCalls.performApiCall(urlParam);
 
-        HttpURLConnection urlConnection = null;
-        BufferedReader reader = null;
-
-        // Will contain the raw JSON response as a string.
-        String routesJsonStr = null;
-
-        try {
-            URL url = new URL(urlParam);
-
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
-
-            // Read the input stream into a String
-            InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
-            if (inputStream == null) {
-                // Nothing to do.
-                return;
-            }
-            reader = new BufferedReader(new InputStreamReader(inputStream));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                //add new line for debugging
-                buffer.append(line + "\n");
-            }
-
-            if (buffer.length() == 0) {
-                // Stream was empty.  No point in parsing.
-                return;
-            }
-            routesJsonStr = buffer.toString();
-            Log.d(LOG_TAG, "routes " + routesJsonStr);
-        } catch (IOException e) {
-            Log.e(LOG_TAG, "Error ", e);
-            return;
-        } finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (final IOException e) {
-                    Log.e(LOG_TAG, "Error closing stream", e);
-                }
-            }
-        }
-
-        ArrayList<Route> routes = getRoutesFromJson(routesJsonStr);
+        ArrayList<Route> routes = getRoutesFromJson(routesJsonString);
         notifyFinished(routes);
     }
 
@@ -278,7 +222,7 @@ public class RouteSearchService extends IntentService {
                 }
                 else if (location.has(TAG_LOCATION_CODE)) {
                     code = location.getString(TAG_LOCATION_CODE);
-                    routeLocation.setCode(tryParsingStringToInt(code));
+                    routeLocation.setCode(Util.tryParsingStringToInt(code));
                 }
                 else if (location.has(TAG_LOCATION_SHORT_CODE)) {
                     shortCode = location.getString(TAG_LOCATION_SHORT_CODE);
@@ -297,16 +241,6 @@ public class RouteSearchService extends IntentService {
         }
 
         return locations;
-    }
-
-    private int tryParsingStringToInt(String string) {
-        try {
-            return Integer.parseInt(string);
-        }
-        catch (NumberFormatException e) {
-            Log.e(LOG_TAG, "Cannot parse int", e);
-            return -1;
-        }
     }
 
     private ArrayList<Coordinates> getLegShape(JSONArray shapeArray) {

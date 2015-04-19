@@ -36,15 +36,7 @@ import com.devglyph.reitittaja.data.LocationContract;
 public class FavoritesFragment extends Fragment implements AbsListView.OnItemClickListener,
         LoaderManager.LoaderCallbacks<Cursor> {
 
-    private static final String SECTION_PARAM = "param1";
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-
-    // TODO: Rename and change types of parameters
-    private int mParam1;
-
+    private static final String SECTION_PARAM = "section_param1";
     private OnFragmentInteractionListener mListener;
 
     private final String LOG_TAG = FavoritesFragment.class.getSimpleName();
@@ -56,18 +48,11 @@ public class FavoritesFragment extends Fragment implements AbsListView.OnItemCli
 
     private SimpleCursorAdapter mAdapter;
 
-    /**
-     * The Adapter which will be used to populate the ListView/GridView with
-     * Views.
-     */
-    //private ListAdapter mAdapter;
-
-    // TODO: Rename and change types of parameters
-    public static FavoritesFragment newInstance(int param1) {
+    public static FavoritesFragment newInstance(int sectionNumber) {
         Log.d("FavoritesFragment", "newInstance");
         FavoritesFragment fragment = new FavoritesFragment();
         Bundle args = new Bundle();
-        args.putInt(SECTION_PARAM, param1);
+        args.putInt(SECTION_PARAM, sectionNumber);
         fragment.setArguments(args);
         return fragment;
     }
@@ -85,15 +70,7 @@ public class FavoritesFragment extends Fragment implements AbsListView.OnItemCli
 
         Log.d(LOG_TAG, "onCreate");
 
-        if (getArguments() != null) {
-            mParam1 = getArguments().getInt(ARG_PARAM1);
-        }
-
         setHasOptionsMenu(true);
-
-        // TODO: Change Adapter to display your content
-        //mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
-        //        android.R.layout.simple_list_item_1, android.R.id.text1, DummyContent.ITEMS);
     }
 
     @Override
@@ -105,7 +82,6 @@ public class FavoritesFragment extends Fragment implements AbsListView.OnItemCli
 
         // Set the mAdapter
         mListView = (ListView) view.findViewById(android.R.id.list);
-        //((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
 
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
@@ -198,7 +174,7 @@ public class FavoritesFragment extends Fragment implements AbsListView.OnItemCli
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        public void onFragmentInteraction(String id);
+        void onFragmentInteraction(String id);
     }
 
     @Override
@@ -206,13 +182,12 @@ public class FavoritesFragment extends Fragment implements AbsListView.OnItemCli
         Log.d(LOG_TAG, "onCreateLoader");
         String[] projection = { LocationContract.LocationEntry._ID, LocationContract.LocationEntry.COLUMN_LOCATION_NAME};
         //get only favorite locations
-        CursorLoader cursorLoader = new CursorLoader(getActivity(),
+        return new CursorLoader(getActivity(),
                 LocationContract.LocationEntry.CONTENT_URI,
                 projection,
                 LocationContract.LocationEntry.COLUMN_FAVORITE + " = ?", // cols for "where" clause
                 new String[]{"1"}, // values for "where" clause
                 null);
-        return cursorLoader;
     }
 
     @Override
@@ -227,5 +202,4 @@ public class FavoritesFragment extends Fragment implements AbsListView.OnItemCli
         // data is not available anymore, delete reference
         mAdapter.swapCursor(null);
     }
-
 }

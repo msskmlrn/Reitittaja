@@ -58,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class JourneyPlannerFragment extends Fragment implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -73,16 +74,9 @@ public class JourneyPlannerFragment extends Fragment implements
     private Button mTimeButton;
     private Button mDateButton;
 
-    private ImageButton mFromFavoriteButton;
-    private ImageButton mToFavoriteButton;
-
     private AutoCompleteTextView mStartPlace;
     private AutoCompleteTextView mEndPlace;
 
-    private RadioGroup departureGroup;
-    private CheckBox busBox, trainBox, metroBox, tramBox, ulineBox, serviceBox, walkingBox, cyclingBox;
-
-    //TODO handle progress dialog when the orientation changes
     private ProgressDialog progressDialog;
 
     private boolean mDeparture = true;
@@ -225,7 +219,7 @@ public class JourneyPlannerFragment extends Fragment implements
         // Inflate the layout for this fragment
         mView = inflater.inflate(R.layout.fragment_journey_planner, container, false);
 
-        departureGroup = (RadioGroup) mView.findViewById(R.id.radioGroupArrivalDeparture);
+        RadioGroup departureGroup = (RadioGroup) mView.findViewById(R.id.radioGroupArrivalDeparture);
         createRadioButtonChangeListener(departureGroup);
 
         initializeTransportationModeBoxes();
@@ -248,27 +242,27 @@ public class JourneyPlannerFragment extends Fragment implements
      * Initialize the transportation mode boxes
      */
     private void initializeTransportationModeBoxes() {
-        busBox = (CheckBox) mView.findViewById(R.id.checkBoxBus);
+        CheckBox busBox = (CheckBox) mView.findViewById(R.id.checkBoxBus);
         createCheckBoxChangeListener(busBox);
         busBox.setChecked(true);
-        trainBox = (CheckBox) mView.findViewById(R.id.checkBoxTrain);
+        CheckBox trainBox = (CheckBox) mView.findViewById(R.id.checkBoxTrain);
         createCheckBoxChangeListener(trainBox);
         trainBox.setChecked(true);
-        metroBox = (CheckBox) mView.findViewById(R.id.checkBoxMetro);
+        CheckBox metroBox = (CheckBox) mView.findViewById(R.id.checkBoxMetro);
         createCheckBoxChangeListener(metroBox);
         metroBox.setChecked(true);
-        tramBox = (CheckBox) mView.findViewById(R.id.checkBoxTram);
+        CheckBox tramBox = (CheckBox) mView.findViewById(R.id.checkBoxTram);
         createCheckBoxChangeListener(tramBox);
         tramBox.setChecked(true);
-        ulineBox = (CheckBox) mView.findViewById(R.id.checkBoxUline);
+        CheckBox ulineBox = (CheckBox) mView.findViewById(R.id.checkBoxUline);
         createCheckBoxChangeListener(ulineBox);
         ulineBox.setChecked(true);
-        serviceBox = (CheckBox) mView.findViewById(R.id.checkBoxService);
+        CheckBox serviceBox = (CheckBox) mView.findViewById(R.id.checkBoxService);
         createCheckBoxChangeListener(serviceBox);
         serviceBox.setChecked(true);
-        walkingBox = (CheckBox) mView.findViewById(R.id.checkBoxOnlyWalking);
+        CheckBox walkingBox = (CheckBox) mView.findViewById(R.id.checkBoxOnlyWalking);
         createCheckBoxChangeListener(walkingBox);
-        cyclingBox = (CheckBox) mView.findViewById(R.id.checkBoxOnlyCycling);
+        CheckBox cyclingBox = (CheckBox) mView.findViewById(R.id.checkBoxOnlyCycling);
         createCheckBoxChangeListener(cyclingBox);
     }
 
@@ -287,10 +281,10 @@ public class JourneyPlannerFragment extends Fragment implements
         createDateButtonClickListener(mDateButton);
         mDateButton.setText(R.string.journey_planner_now_date);
 
-        mFromFavoriteButton = (ImageButton) mView.findViewById(R.id.from_favorites);
+        ImageButton mFromFavoriteButton = (ImageButton) mView.findViewById(R.id.from_favorites);
         createFavoriteButtonClickListener(mFromFavoriteButton);
 
-        mToFavoriteButton = (ImageButton) mView.findViewById(R.id.to_favorites);
+        ImageButton mToFavoriteButton = (ImageButton) mView.findViewById(R.id.to_favorites);
         createFavoriteButtonClickListener(mToFavoriteButton);
     }
 
@@ -487,8 +481,8 @@ public class JourneyPlannerFragment extends Fragment implements
      * @param value
      */
     private void setWalkingAndCycling(TableLayout layout, boolean value) {
-        markItem(R.id.checkBoxOnlyCycling, value, layout);
-        markItem(R.id.checkBoxOnlyWalking, value, layout);
+        markItem(R.id.checkBoxOnlyCycling, false, layout);
+        markItem(R.id.checkBoxOnlyWalking, false, layout);
     }
 
     /**
@@ -923,7 +917,7 @@ public class JourneyPlannerFragment extends Fragment implements
         }
         else {
             timeType = "" + R.string.journey_planner_arrival_time;
-            timeType.toLowerCase(); //format the parameter for the query
+            timeType = timeType.toLowerCase(); //format the parameter for the query
         }
 
         return timeType;
@@ -950,7 +944,7 @@ public class JourneyPlannerFragment extends Fragment implements
         }
 
         //format the date to yyyymmdd
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd", Locale.US);
         date = simpleDateFormat.format(dDate);
 
         return date;
@@ -980,7 +974,7 @@ public class JourneyPlannerFragment extends Fragment implements
     private String getTimeParameter() {
         //format the time to hhmm
         Date dTime = getTimeButtonTime().getTime();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HHmm");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HHmm", Locale.US);
         String time = simpleDateFormat.format(dTime);
 
         Log.d(LOG_TAG, "time set "+time);

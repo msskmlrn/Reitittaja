@@ -25,7 +25,7 @@ import java.util.ArrayList;
  * 'activated' state upon selection. This helps indicate which item is
  * currently being viewed in a {@link RouteDetailFragment}.
  * <p/>
- * Activities containing this fragment MUST implement the {@link Callbacks}
+ * Activities containing this fragment MUST implement the {@link com.devglyph.reitittaja.fragments.RouteListFragment.OnItemSelected}
  * interface.
  */
 public class RouteListFragment extends Fragment {
@@ -40,7 +40,6 @@ public class RouteListFragment extends Fragment {
 
     private ArrayList<Route> mRoutes = new ArrayList<>();
     private ListView listView;
-    private TextView startPlace, endPlace;
 
     private RoutesAdapter routeArrayAdapter;
 
@@ -48,7 +47,7 @@ public class RouteListFragment extends Fragment {
      * The fragment's current callback object, which is notified of list item
      * clicks.
      */
-    private Callbacks mCallbacks = sDummyCallbacks;
+    private OnItemSelected mCallback;
 
     /**
      * The current activated item position. Only used on tablets.
@@ -60,22 +59,9 @@ public class RouteListFragment extends Fragment {
      * implement. This mechanism allows activities to be notified of item
      * selections.
      */
-    public interface Callbacks {
-        /**
-         * Callback for when an item has been selected.
-         */
-        public void onItemSelected(int index);
+    public interface OnItemSelected {
+        void onItemSelected(int index);
     }
-
-    /**
-     * A dummy implementation of the {@link Callbacks} interface that does
-     * nothing. Used only when this fragment is not attached to an activity.
-     */
-    private static Callbacks sDummyCallbacks = new Callbacks() {
-        @Override
-        public void onItemSelected(int index) {
-        }
-    };
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -98,8 +84,8 @@ public class RouteListFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_routes, null);
         listView = (ListView) v.findViewById(R.id.list_routes);
 
-        startPlace = (TextView) v.findViewById(R.id.start_place);
-        endPlace = (TextView) v.findViewById(R.id.end_place);
+        TextView startPlace = (TextView) v.findViewById(R.id.start_place);
+        TextView endPlace = (TextView) v.findViewById(R.id.end_place);
 
         startPlace.setText(mRoutes.get(0).getStartLocation().getName());
         endPlace.setText(mRoutes.get(0).getEndLocation().getName());
@@ -111,8 +97,7 @@ public class RouteListFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.d(LOG_TAG, "onGroupClick, group " + position);
-                //((Callback) getActivity()).onItemSelected("as");
-                mCallbacks.onItemSelected(position);
+                mCallback.onItemSelected(position);
             }
         });
 
@@ -134,20 +119,19 @@ public class RouteListFragment extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        // Activities containing this fragment must implement its callbacks.
-        if (!(activity instanceof Callbacks)) {
-            throw new IllegalStateException("Activity must implement fragment's callbacks.");
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        try {
+            mCallback = (OnItemSelected) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnItemSelectedListener");
         }
-
-        mCallbacks = (Callbacks) activity;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-
-        // Reset the active callbacks interface to the dummy implementation.
-        mCallbacks = sDummyCallbacks;
     }
 
     @Override

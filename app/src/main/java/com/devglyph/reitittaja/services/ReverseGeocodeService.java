@@ -1,5 +1,6 @@
 package com.devglyph.reitittaja.services;
 
+import android.annotation.TargetApi;
 import android.app.IntentService;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -7,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -17,19 +19,13 @@ import com.devglyph.reitittaja.models.Location;
 import com.devglyph.reitittaja.models.Route;
 import com.devglyph.reitittaja.models.RouteLeg;
 import com.devglyph.reitittaja.models.RouteLocation;
+import com.devglyph.reitittaja.network.ApiCalls;
 import com.devglyph.reitittaja.network.LocationJsonParserUtil;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,6 +109,7 @@ public class ReverseGeocodeService extends IntentService {
      * @param lon the longitude of the city
      * @return the row ID of the added location.
      */
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private long addLocation(boolean favorite, String name, String description, double lat, double lon) {
         Log.d(LOG_TAG, "add location "+favorite + " "+name + " "+ description + " " + lat + " " + lon);
 
@@ -129,7 +126,9 @@ public class ReverseGeocodeService extends IntentService {
             int locationIdIndex = cursor.getColumnIndex(LocationContract.LocationEntry._ID);
             Log.d(LOG_TAG, "location already present");
 
-            return cursor.getLong(locationIdIndex);
+            long result = cursor.getLong(locationIdIndex);
+            cursor.close();
+            return result;
         } else {
             int favoriteValue = favorite ? 1 : 0;
 
@@ -150,6 +149,7 @@ public class ReverseGeocodeService extends IntentService {
             Log.d(LOG_TAG, "inserting location");
             Log.d(LOG_TAG, "favorite value "+favoriteValue);
 
+            cursor.close();
             return ContentUris.parseId(locationInsertUri);
         }
     }
@@ -166,58 +166,13 @@ public class ReverseGeocodeService extends IntentService {
             return null;
         }
 
-        HttpURLConnection urlConnection = null;
-        BufferedReader reader = null;
+        String urlString = prepareSearchQuery(coordinates);
 
-        // Will contain the raw JSON response as a string.
-        String locationJsonStr = null;
-
-        try {
-            URL url = prepareUrl(coordinates);
-
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
-
-            // Read the input stream into a String
-            InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
-            if (inputStream == null) {
-                // Nothing to do.
-                return null;
-            }
-            reader = new BufferedReader(new InputStreamReader(inputStream));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                //add new line for debugging
-                buffer.append(line + "\n");
-            }
-
-            if (buffer.length() == 0) {
-                // Stream was empty.  No point in parsing.
-                return null;
-            }
-            locationJsonStr = buffer.toString();
-            Log.d(LOG_TAG, "locations " + locationJsonStr);
-        } catch (IOException e) {
-            Log.e(LOG_TAG, "Error ", e);
-            return null;
-        } finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (final IOException e) {
-                    Log.e(LOG_TAG, "Error closing stream", e);
-                }
-            }
-        }
+        ApiCalls apiCalls = new ApiCalls();
+        String locationJsonString = apiCalls.performApiCall(urlString);
 
         //parse the json to location objects
-        ArrayList<Location> locationList = new LocationJsonParserUtil().getPlacesFromJson(locationJsonStr);
+        ArrayList<Location> locationList = new LocationJsonParserUtil().getPlacesFromJson(locationJsonString);
         if (locationList != null && !locationList.isEmpty()) {
             return locationList.get(0);
         }
@@ -225,7 +180,7 @@ public class ReverseGeocodeService extends IntentService {
         return null;
     }
 
-    private URL prepareUrl(Coordinates coordinates) {
+    private String prepareSearchQuery(Coordinates coordinates) {
         final String QUERY_BASE_URL =
                 "http://api.reittiopas.fi/hsl/prod/?";
         final String QUERY_PARAM = "request";
@@ -250,14 +205,6 @@ public class ReverseGeocodeService extends IntentService {
         nameValuePairs.add(new BasicNameValuePair(RADIUS_PARAM, "500"));
 
         String paramString = URLEncodedUtils.format(nameValuePairs, "utf-8");
-
-        try {
-            URL url = new URL(QUERY_BASE_URL + paramString);
-            return url;
-        }
-        catch (MalformedURLException ex) {
-            ex.printStackTrace();
-        }
-        return null;
+        return QUERY_BASE_URL + paramString;
     }
 }

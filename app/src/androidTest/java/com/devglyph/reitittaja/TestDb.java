@@ -10,7 +10,7 @@ import com.devglyph.reitittaja.data.DbHelper;
 import com.devglyph.reitittaja.data.LocationContract;
 
 public class TestDb extends AndroidTestCase {
-    public static final String LOG_TAG = TestDb.class.getSimpleName();
+    private static final String LOG_TAG = TestDb.class.getSimpleName();
 
     public void testCreateDb() throws Throwable {
         mContext.deleteDatabase(DbHelper.DATABASE_NAME);

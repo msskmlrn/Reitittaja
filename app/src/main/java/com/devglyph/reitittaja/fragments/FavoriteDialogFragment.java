@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,8 +50,6 @@ public class FavoriteDialogFragment extends DialogFragment implements AdapterVie
 
     private OnFavoriteChosenListener mListener;
 
-    private Button saveButton;
-
     /**
      * The fragment's ListView/GridView.
      */
@@ -66,7 +63,6 @@ public class FavoriteDialogFragment extends DialogFragment implements AdapterVie
      */
     private SimpleCursorAdapter mAdapter;
 
-    // TODO: Rename and change types of parameters
     public static FavoriteDialogFragment newInstance(String name, String description, double lat, double lon, boolean clickForStartPlace) {
         FavoriteDialogFragment fragment = new FavoriteDialogFragment();
         Bundle args = new Bundle();
@@ -111,24 +107,25 @@ public class FavoriteDialogFragment extends DialogFragment implements AdapterVie
 
         // Set the adapter
         mListView = (ListView) view.findViewById(android.R.id.list);
-        ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
+        mListView.setAdapter(mAdapter);
 
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
 
-        saveButton = (Button) view.findViewById(R.id.button_save_location);
+        Button saveButton = (Button) view.findViewById(R.id.button_save_location);
         createOnClickListener(saveButton);
 
         // Fields from the database (projection)
         // Must include the _id column for the adapter to work
         String[] from = new String[] { LocationContract.LocationEntry._ID,
+                LocationContract.LocationEntry.COLUMN_FAVORITE,
                 LocationContract.LocationEntry.COLUMN_LOCATION_NAME,
                 LocationContract.LocationEntry.COLUMN_LOCATION_DESCRIPTION,
                 LocationContract.LocationEntry.COLUMN_COORD_LAT,
                 LocationContract.LocationEntry.COLUMN_COORD_LONG,
-                LocationContract.LocationEntry.COLUMN_FAVORITE};
+                };
         // Fields on the UI to which we map
-        int[] to = new int[] { android.R.id.text1, android.R.id.text1 };
+        int[] to = new int[] { android.R.id.text1, android.R.id.text1, android.R.id.text1 };
 
         getLoaderManager().initLoader(0, null, this);
         mAdapter = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_list_item_1, null, from,
@@ -199,7 +196,7 @@ public class FavoriteDialogFragment extends DialogFragment implements AdapterVie
                 String description = cursor.getString(LocationContract.LocationEntry.COLUMN_LOCATION_DESCRIPTION_INDEX);
                 double lat = cursor.getDouble(LocationContract.LocationEntry.COLUMN_COORD_LAT_INDEX);
                 double lon = cursor.getDouble(LocationContract.LocationEntry.COLUMN_COORD_LONG_INDEX);
-                boolean favorite = cursor.getInt(LocationContract.LocationEntry.COLUMN_FAVORITE_INDEX) == 1 ? true : false;
+                boolean favorite = cursor.getInt(LocationContract.LocationEntry.COLUMN_FAVORITE_INDEX) == 1;
 
                 Log.d(LOG_TAG, "location info from database, clicked item");
                 Log.d(LOG_TAG, name + " " + description + " " + lat + " " + lon + " " + favorite);
@@ -237,18 +234,18 @@ public class FavoriteDialogFragment extends DialogFragment implements AdapterVie
      * else from end place favorite.
      */
     public interface OnFavoriteChosenListener {
-        public void onFavoriteChosen(Location location, boolean startPlace);
+        void onFavoriteChosen(Location location, boolean startPlace);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Log.d(LOG_TAG, "onCreateLoader");
         String[] projection = { LocationContract.LocationEntry._ID,
+                LocationContract.LocationEntry.COLUMN_FAVORITE,
                 LocationContract.LocationEntry.COLUMN_LOCATION_NAME,
                 LocationContract.LocationEntry.COLUMN_LOCATION_DESCRIPTION,
                 LocationContract.LocationEntry.COLUMN_COORD_LAT,
-                LocationContract.LocationEntry.COLUMN_COORD_LONG,
-                LocationContract.LocationEntry.COLUMN_FAVORITE};
+                LocationContract.LocationEntry.COLUMN_COORD_LONG };
 
         //get only favorite locations
         CursorLoader cursorLoader = new CursorLoader(getActivity(),

@@ -11,7 +11,7 @@ import com.devglyph.reitittaja.data.LocationContract;
 
 public class TestProvider extends AndroidTestCase {
 
-    public static final String LOG_TAG = TestProvider.class.getSimpleName();
+    private static final String LOG_TAG = TestProvider.class.getSimpleName();
 
     // empty the database
     public void deleteAllRecords() {

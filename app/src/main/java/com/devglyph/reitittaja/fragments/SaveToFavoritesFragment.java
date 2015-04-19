@@ -1,9 +1,11 @@
 package com.devglyph.reitittaja.fragments;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
@@ -29,9 +31,7 @@ public class SaveToFavoritesFragment extends DialogFragment {
     private final String LOG_TAG = FavoritesFragment.class.getSimpleName();
 
     private OnFavoriteSavedListener mListener;
-    private TextView mNameText;
     private EditText mEditText;
-    private Button mCancelButton, mSaveButton;
 
     private static final String NAME_PARAM = "name";
     private static final String DESCRIPTION_PARAM = "description";
@@ -82,11 +82,11 @@ public class SaveToFavoritesFragment extends DialogFragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_save_to_favorites, container);
-        mNameText = (TextView) view.findViewById(R.id.favorite_name);
+        TextView mNameText = (TextView) view.findViewById(R.id.favorite_name);
         mEditText = (EditText) view.findViewById(R.id.favorite_description);
-        mCancelButton = (Button) view.findViewById(R.id.favorite_cancel);
+        Button mCancelButton = (Button) view.findViewById(R.id.favorite_cancel);
         createOnClickListener(mCancelButton);
-        mSaveButton = (Button) view.findViewById(R.id.favorite_save);
+        Button mSaveButton = (Button) view.findViewById(R.id.favorite_save);
         createOnClickListener(mSaveButton);
 
         //set the name of the location
@@ -126,7 +126,7 @@ public class SaveToFavoritesFragment extends DialogFragment {
                     //Otherwise, this is a new favorite, so save it to the database.
 
                     //get the description from the text field
-                    if (mEditText.getText().toString() != null && !mEditText.getText().toString().isEmpty()) {
+                    if (!mEditText.getText().toString().isEmpty()) {
                         mDescription = mEditText.getText().toString();
                     }
 
@@ -145,6 +145,7 @@ public class SaveToFavoritesFragment extends DialogFragment {
      * @param lat
      * @param lon
      */
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void addToFavorites(String name, String description, double lat, double lon) {
         Log.d(LOG_TAG, "addToFavorites");
         Log.d(LOG_TAG, name + " " + description + " " + lat + " "+ lon);
@@ -183,7 +184,7 @@ public class SaveToFavoritesFragment extends DialogFragment {
         String entryDescription = cursor.getString(LocationContract.LocationEntry.COLUMN_LOCATION_DESCRIPTION_INDEX);
         double entryLat = cursor.getDouble(LocationContract.LocationEntry.COLUMN_COORD_LAT_INDEX);
         double entryLon = cursor.getDouble(LocationContract.LocationEntry.COLUMN_COORD_LONG_INDEX);
-        boolean entryFavorite = cursor.getInt(LocationContract.LocationEntry.COLUMN_FAVORITE_INDEX) == 1 ? true : false;
+        boolean entryFavorite = cursor.getInt(LocationContract.LocationEntry.COLUMN_FAVORITE_INDEX) == 1;
 
         Log.d(LOG_TAG, entryName + " " + entryDescription + " " + entryLat + " " + entryLon + " " + entryFavorite);
         Log.d(LOG_TAG, "old description "+entryDescription + " vs new "+description);
@@ -264,7 +265,7 @@ public class SaveToFavoritesFragment extends DialogFragment {
      * else from end place favorite.
      */
     public interface OnFavoriteSavedListener{
-        public void onFavoriteSaved(Location location, boolean startPlace);
+        void onFavoriteSaved(Location location, boolean startPlace);
     }
 
 }
